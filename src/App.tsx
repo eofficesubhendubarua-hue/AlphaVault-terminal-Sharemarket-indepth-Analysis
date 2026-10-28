@@ -9,14 +9,16 @@ import { GatekeeperWatchlist } from './components/GatekeeperWatchlist';
 import { AladdinRiskSuite } from './components/AladdinRiskSuite';
 import { ProfitHunterAlerts } from './components/ProfitHunterAlerts';
 import { Argon4Autopilot } from './components/Argon4Autopilot';
+import { EngineSettingsModal } from './components/EngineSettingsModal';
 import { useRealTimeMarketSync } from './hooks/useRealTimeMarketSync';
 import { useOnlineStatus } from './hooks/usePWAInstall';
-import { WifiOff, RefreshCw, Play, Pause } from 'lucide-react';
+import { WifiOff, RefreshCw, Play, Pause, Settings } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('autopilot');
   const [selectedTickerForDeep, setSelectedTickerForDeep] = useState('TATAMOTORS');
   const [istTimeStr, setIstTimeStr] = useState('');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isOnline = useOnlineStatus();
 
   // Primary Continuous Zero-Latency Market Synchronization Hook
@@ -194,6 +196,17 @@ export default function App() {
             >
               <RefreshCw className="w-3.5 h-3.5 text-blue-400" />
               <span className="hidden sm:inline">Sync Now</span>
+            </button>
+
+            {/* Terminal Engine Settings Button */}
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-1 sm:px-2.5 sm:py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-semibold transition flex items-center gap-1.5 text-[11px]"
+              title="Terminal Engine Configuration & API Keys"
+            >
+              <Settings className="w-3.5 h-3.5 text-blue-400" />
+              <span className="hidden sm:inline">Settings</span>
             </button>
           </div>
         </div>
@@ -382,6 +395,20 @@ export default function App() {
           <span>Offline Mode — Cached institutional assets active.</span>
         </div>
       )}
+
+      {/* Engine Settings & Gemini AI Key Configuration Modal */}
+      <EngineSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        streamSpeed={streamSpeed}
+        onStreamSpeedChange={setStreamSpeed}
+        isLiveStreaming={isLiveStreaming}
+        onToggleLiveStream={toggleLiveStream}
+        streamSource={streamSource}
+        assets={assets}
+        customAssets={customAssets}
+        onImportAssets={handleAddWatchlistAssets}
+      />
     </div>
   );
 }
