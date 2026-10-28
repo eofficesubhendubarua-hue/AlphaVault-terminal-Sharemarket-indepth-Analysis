@@ -162,7 +162,7 @@ export const MarketSearchDropdown: React.FC<MarketSearchDropdownProps> = ({
   };
 
   return (
-    <div ref={containerRef} className={`relative ${isOpen ? 'z-[100]' : 'z-10'} ${className}`}>
+    <div ref={containerRef} className={`relative ${className}`}>
       {/* Search Input Box */}
       <div className="relative flex items-center">
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
@@ -213,7 +213,7 @@ export const MarketSearchDropdown: React.FC<MarketSearchDropdownProps> = ({
         <div
           className={`absolute ${
             dropdownAlign === 'right' ? 'right-0' : 'left-0'
-          } mt-2 w-full min-w-[340px] sm:min-w-[480px] max-w-[620px] z-[120] rounded-2xl bg-[#090f1b] border border-cyan-500/50 shadow-2xl shadow-black/90 backdrop-blur-xl overflow-hidden animate-fadeIn`}
+          } mt-2 w-full min-w-[340px] sm:min-w-[480px] max-w-[620px] z-50 rounded-2xl bg-[#090f1b] border border-cyan-500/40 shadow-2xl shadow-black/80 backdrop-blur-xl overflow-hidden animate-fadeIn`}
           style={{ maxHeight: '480px' }}
         >
           {/* Top Bar with Category Filter Pills */}

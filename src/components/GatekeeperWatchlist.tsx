@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { CustomAssetItem } from '../types/investment';
 import { compute5GatekeeperScore, formatSignedPct } from '../utils/quantLogic';
-import { MarketSearchDropdown } from './MarketSearchDropdown';
 import { PlusCircle, Trash2, Download, ShieldCheck, AlertCircle } from 'lucide-react';
 
 interface GatekeeperProps {
@@ -131,26 +130,15 @@ export const GatekeeperWatchlist: React.FC<GatekeeperProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
-          <div className="sm:col-span-2 relative z-20">
-            <label className="block text-[11px] text-slate-400 mb-1">Exact Legal Name, Ticker &amp; ISIN * (Search Whole Market)</label>
-            <MarketSearchDropdown
+          <div className="sm:col-span-2">
+            <label className="block text-[11px] text-slate-400 mb-1">Exact Legal Name, Ticker &amp; ISIN *</label>
+            <input
+              type="text"
+              required
               value={name}
-              onChange={setName}
-              onSelect={item => {
-                setName(`${item.name} (${item.ticker} | ${item.isin || `INE0${item.ticker}2026`})`);
-                setType(item.type === 'MF' ? 'MUTUAL_FUND' : item.type);
-                setPrice(String(item.price));
-                setHigh52(String(item.high52 ? item.high52.toFixed(2) : (item.price * 1.25).toFixed(2)));
-                setLow52(String(item.low52 ? item.low52.toFixed(2) : (item.price * 0.75).toFixed(2)));
-                setD1(String(item.change1d));
-                if (item.ret1m !== undefined) setM1(String(item.ret1m));
-                if (item.ret3m !== undefined) setM3(String(item.ret3m));
-                if (item.ret6m !== undefined) setM6(String(item.ret6m));
-                if (item.ret1y !== undefined) setY1(String(item.ret1y));
-                if (typeof item.pe === 'number') setPe(String(item.pe));
-              }}
-              placeholder="Search stocks, ETFs, mutual funds (e.g. Suzlon, Waaree, TCS, HDFC)..."
-              idPrefix="gatekeeper-reg-search"
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g. ONGC Ltd (NSE: ONGC | INE213A01029)"
+              className="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white"
             />
           </div>
           <div>

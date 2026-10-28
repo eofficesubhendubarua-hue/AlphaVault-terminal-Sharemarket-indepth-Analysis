@@ -1,0 +1,1184 @@
+{
+  "status": "SUCCESS",
+  "timestamp": "2026-10-26T22:28:38.729301",
+  "operator": "Sri Subhendu Barua",
+  "clientId": "S52773407",
+  "totalAssets": 7,
+  "totalRadarAlerts": 11,
+  "totalProfitHuntingAlerts": 5,
+  "profitHuntingAlerts": [
+    {
+      "id": "hunt-BHARATCOAL-1793033918",
+      "symbol": "BHARATCOAL",
+      "name": "Bharat Coking Coal Ltd \u2014 Strategic Energy Value",
+      "category": "PENNY / VALUE STOCK",
+      "price": 30.85,
+      "change1D": -1.69,
+      "change1M": -12.9,
+      "rsi": 28.4,
+      "quantScore": 98,
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "signal": "INSTANT PROFIT HUNTING \u2014 VALUE DIP",
+      "headline": "Bearish Dip in High-Quality PENNY / VALUE STOCK: BHARATCOAL (-1.7% 1D / -12.9% 1M)",
+      "catalyst": "Asset pulled back into institutional accumulation zone. RSI(14) at 28.4 indicates strong mean-reversion probability.",
+      "entryTranche": "5% \u2013 8% Initial Capital Tranche",
+      "stopLoss": 30.27,
+      "stopLossPct": "-1.87%",
+      "targetPrice": 35.79,
+      "targetProfitPct": "+16.00%",
+      "riskRewardRatio": "1 : 8.55",
+      "marginOfSafety": "Quant Score 98/100 | ROCE 19.5% | D/E 0.15",
+      "orderPayload": {
+        "clientId": "S52773407",
+        "symbol": "BHARATCOAL",
+        "orderType": "LIMIT",
+        "limitPrice": 30.85,
+        "targetExit": 35.79,
+        "stopLoss": 30.27
+      }
+    },
+    {
+      "id": "hunt-NIFTYBEES-1793033918",
+      "symbol": "NIFTYBEES",
+      "name": "Nippon India ETF Nifty 50 BeES \u2014 Sovereign Core Benchmark",
+      "category": "INDEX / SECTOR ETF",
+      "price": 264.5,
+      "change1D": -1.82,
+      "change1M": -4.6,
+      "rsi": 32.8,
+      "quantScore": 95,
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "signal": "INSTANT PROFIT HUNTING \u2014 VALUE DIP",
+      "headline": "Bearish Dip in High-Quality INDEX / SECTOR ETF: NIFTYBEES (-1.8% 1D / -4.6% 1M)",
+      "catalyst": "Asset pulled back into institutional accumulation zone. RSI(14) at 32.8 indicates strong mean-reversion probability.",
+      "entryTranche": "5% \u2013 8% Initial Capital Tranche",
+      "stopLoss": 258.25,
+      "stopLossPct": "-2.36%",
+      "targetPrice": 306.19,
+      "targetProfitPct": "+15.76%",
+      "riskRewardRatio": "1 : 6.67",
+      "marginOfSafety": "Quant Score 95/100 | Institutional Quality Asset",
+      "orderPayload": {
+        "clientId": "S52773407",
+        "symbol": "NIFTYBEES",
+        "orderType": "LIMIT",
+        "limitPrice": 264.5,
+        "targetExit": 306.19,
+        "stopLoss": 258.25
+      }
+    },
+    {
+      "id": "hunt-MF-NIPPON-SMALLCAP-1793033918",
+      "symbol": "MF-NIPPON-SMALLCAP",
+      "name": "Nippon India Small Cap Fund (Direct-G) \u2014 AMFI 118778",
+      "category": "MUTUAL FUND",
+      "price": 178.6,
+      "change1D": -2.35,
+      "change1M": -7.8,
+      "rsi": 31.4,
+      "quantScore": 97,
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "signal": "INSTANT PROFIT HUNTING \u2014 VALUE DIP",
+      "headline": "Bearish Dip in High-Quality MUTUAL FUND: MF-NIPPON-SMALLCAP (-2.4% 1D / -7.8% 1M)",
+      "catalyst": "Asset pulled back into institutional accumulation zone. RSI(14) at 31.4 indicates strong mean-reversion probability.",
+      "entryTranche": "5% \u2013 8% Initial Capital Tranche",
+      "stopLoss": 174.16,
+      "stopLossPct": "-2.48%",
+      "targetPrice": 207.18,
+      "targetProfitPct": "+16.00%",
+      "riskRewardRatio": "1 : 6.44",
+      "marginOfSafety": "Quant Score 97/100 | ROCE 25.8% | D/E 0.12",
+      "orderPayload": {
+        "clientId": "S52773407",
+        "symbol": "MF-NIPPON-SMALLCAP",
+        "orderType": "LIMIT",
+        "limitPrice": 178.6,
+        "targetExit": 207.18,
+        "stopLoss": 174.16
+      }
+    },
+    {
+      "id": "hunt-ONGC-1793033918",
+      "symbol": "ONGC",
+      "name": "Oil & Natural Gas Corp \u2014 Sovereign Crude Hedge",
+      "category": "LARGE / MID STOCK",
+      "price": 227.5,
+      "change1D": 1.11,
+      "change1M": -6.4,
+      "rsi": 34.2,
+      "quantScore": 91,
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "signal": "INSTANT PROFIT HUNTING \u2014 VALUE DIP",
+      "headline": "Bearish Dip in High-Quality LARGE / MID STOCK: ONGC (-1.1% 1D / -6.4% 1M)",
+      "catalyst": "Asset pulled back into institutional accumulation zone. RSI(14) at 34.2 indicates strong mean-reversion probability.",
+      "entryTranche": "5% \u2013 8% Initial Capital Tranche",
+      "stopLoss": 223.41,
+      "stopLossPct": "-1.80%",
+      "targetPrice": 260.81,
+      "targetProfitPct": "+14.64%",
+      "riskRewardRatio": "1 : 8.13",
+      "marginOfSafety": "Quant Score 91/100 | ROCE 16.8% | D/E 0.42",
+      "orderPayload": {
+        "clientId": "S52773407",
+        "symbol": "ONGC",
+        "orderType": "LIMIT",
+        "limitPrice": 227.5,
+        "targetExit": 260.81,
+        "stopLoss": 223.41
+      }
+    },
+    {
+      "id": "hunt-SUZLON-1793033918",
+      "symbol": "SUZLON",
+      "name": "Suzlon Energy Ltd \u2014 Debt-Free Renewable Turnaround",
+      "category": "PENNY / VALUE STOCK",
+      "price": 58.4,
+      "change1D": 2.82,
+      "change1M": -8.4,
+      "rsi": 46.8,
+      "quantScore": 88,
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "signal": "INSTANT PROFIT HUNTING \u2014 VALUE DIP",
+      "headline": "Bearish Dip in High-Quality PENNY / VALUE STOCK: SUZLON (-2.8% 1D / -8.4% 1M)",
+      "catalyst": "Asset pulled back into institutional accumulation zone. RSI(14) at 46.8 indicates strong mean-reversion probability.",
+      "entryTranche": "5% \u2013 8% Initial Capital Tranche",
+      "stopLoss": 56.68,
+      "stopLossPct": "-2.94%",
+      "targetPrice": 63.36,
+      "targetProfitPct": "+8.50%",
+      "riskRewardRatio": "1 : 2.89",
+      "marginOfSafety": "Quant Score 88/100 | ROCE 26.4% | D/E 0.02",
+      "orderPayload": {
+        "clientId": "S52773407",
+        "symbol": "SUZLON",
+        "orderType": "LIMIT",
+        "limitPrice": 58.4,
+        "targetExit": 63.36,
+        "stopLoss": 56.68
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset-1",
+      "symbol": "BHARATCOAL",
+      "name": "Bharat Coking Coal Ltd \u2014 Strategic Energy Value",
+      "category": "PENNY / VALUE STOCK",
+      "price": 30.85,
+      "high52": 46.8,
+      "low52": 26.1,
+      "change1D": -1.69,
+      "change1M": -12.9,
+      "change3M": -9.8,
+      "change6M": 10.5,
+      "change1Y": 16.4,
+      "peRatio": 13.9,
+      "rocePct": 19.5,
+      "debtToEquity": 0.15,
+      "instFlow": "DII_BUYING",
+      "quantScore": 98,
+      "signal": "STRONG VALUE DIP BUY (5\u20138% Alloc)",
+      "allocationPct": 7.5,
+      "notes": "Massive deep-value dip into primary support. DII institutional accumulation active. Low debt with robust ROCE.",
+      "technicals": {
+        "rsi14": 28.4,
+        "volumeRatio20": 2.14,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 1.56,
+        "var99": 2.21,
+        "cvar95": 1.93,
+        "cvar99": 2.43,
+        "portfolioBeta": 0.88,
+        "factorExposure": {
+          "macroGrowth": 0.88,
+          "crudeEnergyHedge": 0.78,
+          "qualityFactor": 0.84
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": -24.08,
+          "survival_score": 81
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": -16.88,
+          "survival_score": 77
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": 20.38,
+          "survival_score": 100
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": -3.28,
+          "survival_score": 91
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": 1.52,
+          "survival_score": 92
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": 5.28,
+          "survival_score": 84
+        }
+      ]
+    },
+    {
+      "id": "asset-etf-dip",
+      "symbol": "NIFTYBEES",
+      "name": "Nippon India ETF Nifty 50 BeES \u2014 Sovereign Core Benchmark",
+      "category": "INDEX / SECTOR ETF",
+      "price": 264.5,
+      "high52": 282.0,
+      "low52": 218.4,
+      "change1D": -1.82,
+      "change1M": -4.6,
+      "change3M": 1.2,
+      "change6M": 8.4,
+      "change1Y": 19.8,
+      "peRatio": 21.4,
+      "rocePct": null,
+      "debtToEquity": 0.0,
+      "instFlow": "ACCUMULATING",
+      "quantScore": 95,
+      "signal": "HIGH QUALITY DIP BUY (10% Alloc)",
+      "allocationPct": 12.0,
+      "notes": "Frontline sovereign benchmark in oversold dip territory. Prime opportunity for instant profit hunting on index mean-reversion.",
+      "technicals": {
+        "rsi14": 32.8,
+        "volumeRatio20": 1.84,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 1.97,
+        "var99": 2.81,
+        "cvar95": 2.82,
+        "cvar99": 3.39,
+        "portfolioBeta": 1.0,
+        "factorExposure": {
+          "macroGrowth": 1.0,
+          "crudeEnergyHedge": 0.05,
+          "qualityFactor": 0.98
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": -27.16,
+          "survival_score": 81
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": -20.0,
+          "survival_score": 76
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": -3.6,
+          "survival_score": 86
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": -3.6,
+          "survival_score": 91
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": 1.88,
+          "survival_score": 93
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": -7.28,
+          "survival_score": 72
+        }
+      ]
+    },
+    {
+      "id": "asset-mf-dip",
+      "symbol": "MF-NIPPON-SMALLCAP",
+      "name": "Nippon India Small Cap Fund (Direct-G) \u2014 AMFI 118778",
+      "category": "MUTUAL FUND",
+      "price": 178.6,
+      "high52": 196.2,
+      "low52": 122.5,
+      "change1D": -2.35,
+      "change1M": -7.8,
+      "change3M": 4.5,
+      "change6M": 16.2,
+      "change1Y": 38.6,
+      "peRatio": 24.2,
+      "rocePct": 25.8,
+      "debtToEquity": 0.12,
+      "instFlow": "ACCUMULATING",
+      "quantScore": 97,
+      "signal": "STRONG VALUE DIP BUY (8\u201310% Alloc)",
+      "allocationPct": 10.0,
+      "notes": "5-Star AMFI Alpha giant down on broad smallcap volatility. Outstanding 5-year Sharpe ratio. Prime dip accumulation.",
+      "technicals": {
+        "rsi14": 31.4,
+        "volumeRatio20": 1.65,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 2.07,
+        "var99": 2.93,
+        "cvar95": 2.28,
+        "cvar99": 2.69,
+        "portfolioBeta": 1.15,
+        "factorExposure": {
+          "macroGrowth": 1.15,
+          "crudeEnergyHedge": 0.12,
+          "qualityFactor": 0.96
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": -32.57,
+          "survival_score": 79
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": -23.9,
+          "survival_score": 74
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": -2.14,
+          "survival_score": 87
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": -4.97,
+          "survival_score": 90
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": 1.16,
+          "survival_score": 93
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": -8.04,
+          "survival_score": 72
+        }
+      ]
+    },
+    {
+      "id": "asset-2",
+      "symbol": "ONGC",
+      "name": "Oil & Natural Gas Corp \u2014 Sovereign Crude Hedge",
+      "category": "LARGE / MID STOCK",
+      "price": 227.5,
+      "high52": 345.0,
+      "low52": 215.0,
+      "change1D": 1.11,
+      "change1M": -6.4,
+      "change3M": -12.5,
+      "change6M": -15.2,
+      "change1Y": -18.0,
+      "peRatio": 6.4,
+      "rocePct": 16.8,
+      "debtToEquity": 0.42,
+      "instFlow": "ACCUMULATING",
+      "quantScore": 91,
+      "signal": "STRONG VALUE DIP BUY (5\u20138% Alloc)",
+      "allocationPct": 8.0,
+      "notes": "Major dividend yield champion (>5.5%). Trading near 52W support zone with single-digit P/E. Strong natural hedge.",
+      "technicals": {
+        "rsi14": 34.2,
+        "volumeRatio20": 1.62,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 1.25,
+        "var99": 1.82,
+        "cvar95": 1.44,
+        "cvar99": 1.91,
+        "portfolioBeta": 0.72,
+        "factorExposure": {
+          "macroGrowth": 0.72,
+          "crudeEnergyHedge": 0.95,
+          "qualityFactor": 0.88
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": -18.16,
+          "survival_score": 84
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": -12.72,
+          "survival_score": 79
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": 26.66,
+          "survival_score": 100
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": -1.72,
+          "survival_score": 93
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": 2.4,
+          "survival_score": 92
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": 10.08,
+          "survival_score": 89
+        }
+      ]
+    },
+    {
+      "id": "asset-3",
+      "symbol": "SUZLON",
+      "name": "Suzlon Energy Ltd \u2014 Debt-Free Renewable Turnaround",
+      "category": "PENNY / VALUE STOCK",
+      "price": 58.4,
+      "high52": 86.0,
+      "low52": 32.1,
+      "change1D": 2.82,
+      "change1M": -8.4,
+      "change3M": -18.2,
+      "change6M": 14.5,
+      "change1Y": 92.5,
+      "peRatio": 42.1,
+      "rocePct": 26.4,
+      "debtToEquity": 0.02,
+      "instFlow": "ACCUMULATING",
+      "quantScore": 88,
+      "signal": "ACCUMULATE",
+      "allocationPct": 6.0,
+      "notes": "Virtually zero debt balance sheet with record order book exceeding 4.5 GW. Beneficiary of national wind capacity mandate.",
+      "technicals": {
+        "rsi14": 46.8,
+        "volumeRatio20": 1.78,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 2.45,
+        "var99": 3.53,
+        "cvar95": 3.8,
+        "cvar99": 5.74,
+        "portfolioBeta": 1.34,
+        "factorExposure": {
+          "macroGrowth": 1.34,
+          "crudeEnergyHedge": 0.35,
+          "qualityFactor": 0.74
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": -40.98,
+          "survival_score": 73
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": -28.84,
+          "survival_score": 71
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": 4.23,
+          "survival_score": 92
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": -7.69,
+          "survival_score": 86
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": -0.92,
+          "survival_score": 91
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": -7.52,
+          "survival_score": 73
+        }
+      ]
+    },
+    {
+      "id": "asset-5",
+      "symbol": "GOLDBEES",
+      "name": "Nippon India Gold ETF \u2014 Macro Crisis & Inflation Hedge",
+      "category": "INDEX / SECTOR ETF",
+      "price": 68.2,
+      "high52": 70.5,
+      "low52": 52.8,
+      "change1D": 0.85,
+      "change1M": 3.4,
+      "change3M": 8.9,
+      "change6M": 14.8,
+      "change1Y": 28.5,
+      "peRatio": null,
+      "rocePct": null,
+      "debtToEquity": 0,
+      "instFlow": "ACCUMULATING",
+      "quantScore": 89,
+      "signal": "STRONG BUY",
+      "allocationPct": 10.0,
+      "notes": "Uncorrelated safe haven asset. Essential Aladdin risk ballast cushioning against equity volatility and currency depreciation.",
+      "technicals": {
+        "rsi14": 61.2,
+        "volumeRatio20": 1.55,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 1.25,
+        "var99": 1.8,
+        "cvar95": 1.66,
+        "cvar99": 2.25,
+        "portfolioBeta": -0.12,
+        "factorExposure": {
+          "macroGrowth": -0.12,
+          "crudeEnergyHedge": 0.45,
+          "qualityFactor": 1.0
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": 12.2,
+          "survival_score": 98
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": 9.12,
+          "survival_score": 89
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": 15.02,
+          "survival_score": 94
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": 6.02,
+          "survival_score": 100
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": 6.48,
+          "survival_score": 94
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": 12.64,
+          "survival_score": 89
+        }
+      ]
+    },
+    {
+      "id": "asset-7",
+      "symbol": "MF-MOTILAL-MIDCAP",
+      "name": "Motilal Oswal Midcap Fund (Direct-G) \u2014 AMFI 127042",
+      "category": "MUTUAL FUND",
+      "price": 112.45,
+      "high52": 118.2,
+      "low52": 78.1,
+      "change1D": 0.65,
+      "change1M": 2.1,
+      "change3M": 11.4,
+      "change6M": 24.5,
+      "change1Y": 44.1,
+      "peRatio": 26.5,
+      "rocePct": 22.8,
+      "debtToEquity": 0.18,
+      "instFlow": "ACCUMULATING",
+      "quantScore": 96,
+      "signal": "STRONG BUY",
+      "allocationPct": 14.0,
+      "notes": "Argon4 High-Alpha selection. Exceptional quality midcap compounder with high active share and low drawdown duration.",
+      "technicals": {
+        "rsi14": 58.4,
+        "volumeRatio20": 1.35,
+        "supertrend": "BULLISH"
+      },
+      "aladdinRisk": {
+        "var95": 1.99,
+        "var99": 2.78,
+        "cvar95": 2.42,
+        "cvar99": 2.96,
+        "portfolioBeta": 0.94,
+        "factorExposure": {
+          "macroGrowth": 0.94,
+          "crudeEnergyHedge": 0.1,
+          "qualityFactor": 0.95
+        }
+      },
+      "stressScenarios": [
+        {
+          "id": "stress-gfc",
+          "name": "2008 GFC Global Liquidity Freeze",
+          "description": "Liquidity contagion and margin liquidation cascade across equities.",
+          "market_shock": -35.0,
+          "volatility_spike": 150.0,
+          "projected_impact": -25.3,
+          "survival_score": 82
+        },
+        {
+          "id": "stress-covid",
+          "name": "2020 Covid Crash & Rapid Liquidity Rebound",
+          "description": "Rapid 30-day liquidity shutdown followed by massive central bank stimulus.",
+          "market_shock": -26.0,
+          "volatility_spike": 110.0,
+          "projected_impact": -18.44,
+          "survival_score": 76
+        },
+        {
+          "id": "stress-crude",
+          "name": "Geopolitical Energy & Crude Spike (+35%)",
+          "description": "Brent crude surging to $118/bbl impacting energy importing economies.",
+          "market_shock": -5.2,
+          "volatility_spike": 42.0,
+          "crude_shock": 35.0,
+          "projected_impact": -1.69,
+          "survival_score": 87
+        },
+        {
+          "id": "stress-rates",
+          "name": "Central Bank Rate Shock (+150 bps)",
+          "description": "Aggressive RBI/Fed rate hikes and discount rate valuation multiple compression.",
+          "market_shock": -8.5,
+          "volatility_spike": 25.0,
+          "interest_rate_shock_bps": 150,
+          "projected_impact": -3.24,
+          "survival_score": 91
+        },
+        {
+          "id": "stress-fx",
+          "name": "Rupee Depreciation & FX Shock (+6% USD/INR)",
+          "description": "Foreign portfolio outflows driving currency depreciation towards 95/USD.",
+          "market_shock": -4.0,
+          "volatility_spike": 30.0,
+          "projected_impact": 1.94,
+          "survival_score": 93
+        },
+        {
+          "id": "stress-stagflation",
+          "name": "Global Stagflation Crisis (Crude +20%, Rates +100 bps, GDP -1.5%)",
+          "description": "Persistent inflation combined with slowing industrial capex.",
+          "market_shock": -12.0,
+          "volatility_spike": 45.0,
+          "projected_impact": -5.88,
+          "survival_score": 74
+        }
+      ]
+    }
+  ],
+  "radarAlerts": [
+    {
+      "id": "alert-dip-BHARATCOAL-1793033918",
+      "symbol": "BHARATCOAL",
+      "type": "DIP_BUY",
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Profit Hunting Dip: -1.69% Pullback (RSI: 28.4)",
+      "metric": "Target: \u20b935.79 (+16.0%) | SL: \u20b930.27 | R:R 1:8.55",
+      "actionRecommendation": "Deploy 5% \u2013 8% Initial Capital Tranche for instant profit hunting. High margin of safety."
+    },
+    {
+      "id": "alert-vol-BHARATCOAL-1793033918",
+      "symbol": "BHARATCOAL",
+      "type": "VOLUME_BREAKOUT",
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Institutional Volume Surge (2.14x 20-Day SMA)",
+      "metric": "Volume Ratio: 2.14x | 1D: -1.69%",
+      "actionRecommendation": "Institutional accumulation confirmed. Monitor for continuation above resistance."
+    },
+    {
+      "id": "alert-dip-NIFTYBEES-1793033918",
+      "symbol": "NIFTYBEES",
+      "type": "DIP_BUY",
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Profit Hunting Dip: -1.82% Pullback (RSI: 32.8)",
+      "metric": "Target: \u20b9306.19 (+15.8%) | SL: \u20b9258.25 | R:R 1:6.67",
+      "actionRecommendation": "Deploy 5% \u2013 8% Initial Capital Tranche for instant profit hunting. High margin of safety."
+    },
+    {
+      "id": "alert-vol-NIFTYBEES-1793033918",
+      "symbol": "NIFTYBEES",
+      "type": "VOLUME_BREAKOUT",
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Institutional Volume Surge (1.84x 20-Day SMA)",
+      "metric": "Volume Ratio: 1.84x | 1D: -1.82%",
+      "actionRecommendation": "Institutional accumulation confirmed. Monitor for continuation above resistance."
+    },
+    {
+      "id": "alert-dip-MF-NIPPON-SMALLCAP-1793033918",
+      "symbol": "MF-NIPPON-SMALLCAP",
+      "type": "DIP_BUY",
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Profit Hunting Dip: -2.35% Pullback (RSI: 31.4)",
+      "metric": "Target: \u20b9207.18 (+16.0%) | SL: \u20b9174.16 | R:R 1:6.44",
+      "actionRecommendation": "Deploy 5% \u2013 8% Initial Capital Tranche for instant profit hunting. High margin of safety."
+    },
+    {
+      "id": "alert-vol-MF-NIPPON-SMALLCAP-1793033918",
+      "symbol": "MF-NIPPON-SMALLCAP",
+      "type": "VOLUME_BREAKOUT",
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Institutional Volume Surge (1.65x 20-Day SMA)",
+      "metric": "Volume Ratio: 1.65x | 1D: -2.35%",
+      "actionRecommendation": "Institutional accumulation confirmed. Monitor for continuation above resistance."
+    },
+    {
+      "id": "alert-dip-ONGC-1793033918",
+      "symbol": "ONGC",
+      "type": "DIP_BUY",
+      "severity": "HIGH_CONVICTION",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Profit Hunting Dip: 1.11% Pullback (RSI: 34.2)",
+      "metric": "Target: \u20b9260.81 (+14.6%) | SL: \u20b9223.41 | R:R 1:8.13",
+      "actionRecommendation": "Deploy 5% \u2013 8% Initial Capital Tranche for instant profit hunting. High margin of safety."
+    },
+    {
+      "id": "alert-vol-ONGC-1793033918",
+      "symbol": "ONGC",
+      "type": "VOLUME_BREAKOUT",
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Institutional Volume Surge (1.62x 20-Day SMA)",
+      "metric": "Volume Ratio: 1.62x | 1D: +1.11%",
+      "actionRecommendation": "Institutional accumulation confirmed. Monitor for continuation above resistance."
+    },
+    {
+      "id": "alert-dip-SUZLON-1793033918",
+      "symbol": "SUZLON",
+      "type": "DIP_BUY",
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Profit Hunting Dip: 2.82% Pullback (RSI: 46.8)",
+      "metric": "Target: \u20b963.36 (+8.5%) | SL: \u20b956.68 | R:R 1:2.89",
+      "actionRecommendation": "Deploy 5% \u2013 8% Initial Capital Tranche for instant profit hunting. High margin of safety."
+    },
+    {
+      "id": "alert-vol-SUZLON-1793033918",
+      "symbol": "SUZLON",
+      "type": "VOLUME_BREAKOUT",
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Institutional Volume Surge (1.78x 20-Day SMA)",
+      "metric": "Volume Ratio: 1.78x | 1D: +2.82%",
+      "actionRecommendation": "Institutional accumulation confirmed. Monitor for continuation above resistance."
+    },
+    {
+      "id": "alert-vol-GOLDBEES-1793033918",
+      "symbol": "GOLDBEES",
+      "type": "VOLUME_BREAKOUT",
+      "severity": "MODERATE",
+      "timestamp": "Today, 10:28 PM",
+      "headline": "Institutional Volume Surge (1.55x 20-Day SMA)",
+      "metric": "Volume Ratio: 1.55x | 1D: +0.85%",
+      "actionRecommendation": "Institutional accumulation confirmed. Monitor for continuation above resistance."
+    }
+  ],
+  "portfolioSummary": {
+    "totalAUM": 2548000,
+    "weightedQuantScore": 92.4,
+    "overallVaR95": 1.76,
+    "overallCVaR95": 2.38,
+    "portfolioBeta": 0.88,
+    "sharpeRatio": 1.82,
+    "sortinoRatio": 2.45,
+    "maxDrawdown1Y": -16.4,
+    "liquidityDays": 0.8,
+    "diversificationRatio": 1.42,
+    "status": "HEALTHY / PRO-ACTIVE ACCUMULATION"
+  },
+  "aladdinFullAnalysis": {
+    "multiHorizonVaR": {
+      "var_1d_95": 1.76,
+      "var_1d_99": 2.49,
+      "var_1d_999": 3.31,
+      "cvar_1d_95": 2.38,
+      "cvar_1d_99": 3.28,
+      "var_10d_95": 5.57,
+      "var_10d_99": 7.87,
+      "cvar_10d_95": 7.53,
+      "var_30d_95": 9.64,
+      "var_30d_99": 13.63,
+      "cvar_30d_95": 13.04
+    },
+    "riskContributions": [
+      {
+        "symbol": "BHARATCOAL",
+        "name": "Bharat Coking Coal Ltd \u2014 Strategic Energy Value",
+        "category": "PENNY / VALUE STOCK",
+        "weightPct": 11.1,
+        "beta": 0.88,
+        "individualVaR": 1.63,
+        "marginalRiskContributionPct": 11.1,
+        "aladdinRole": "CRUDE COMMODITY HEDGE",
+        "liquidityHorizonDays": 1.3
+      },
+      {
+        "symbol": "NIFTYBEES",
+        "name": "Nippon India ETF Nifty 50 BeES \u2014 Sovereign Core Benchmark",
+        "category": "INDEX / SECTOR ETF",
+        "weightPct": 17.8,
+        "beta": 1.0,
+        "individualVaR": 1.85,
+        "marginalRiskContributionPct": 20.2,
+        "aladdinRole": "CORE GROWTH",
+        "liquidityHorizonDays": 1.8
+      },
+      {
+        "symbol": "MF-NIPPON-SMALLCAP",
+        "name": "Nippon India Small Cap Fund (Direct-G) \u2014 AMFI 118778",
+        "category": "MUTUAL FUND",
+        "weightPct": 14.8,
+        "beta": 1.15,
+        "individualVaR": 2.13,
+        "marginalRiskContributionPct": 19.4,
+        "aladdinRole": "SYSTEMATIC ALPHA COMPOUNDER",
+        "liquidityHorizonDays": 1.6
+      },
+      {
+        "symbol": "ONGC",
+        "name": "Oil & Natural Gas Corp \u2014 Sovereign Crude Hedge",
+        "category": "LARGE / MID STOCK",
+        "weightPct": 11.9,
+        "beta": 0.72,
+        "individualVaR": 1.33,
+        "marginalRiskContributionPct": 9.7,
+        "aladdinRole": "CRUDE COMMODITY HEDGE",
+        "liquidityHorizonDays": 1.3
+      },
+      {
+        "symbol": "SUZLON",
+        "name": "Suzlon Energy Ltd \u2014 Debt-Free Renewable Turnaround",
+        "category": "PENNY / VALUE STOCK",
+        "weightPct": 8.9,
+        "beta": 1.34,
+        "individualVaR": 2.48,
+        "marginalRiskContributionPct": 13.5,
+        "aladdinRole": "ASYMMETRIC VALUE DIP",
+        "liquidityHorizonDays": 1.1
+      },
+      {
+        "symbol": "GOLDBEES",
+        "name": "Nippon India Gold ETF \u2014 Macro Crisis & Inflation Hedge",
+        "category": "INDEX / SECTOR ETF",
+        "weightPct": 14.8,
+        "beta": -0.12,
+        "individualVaR": 1.15,
+        "marginalRiskContributionPct": 0.5,
+        "aladdinRole": "MACRO TAIL-RISK HEDGE",
+        "liquidityHorizonDays": 1.6
+      },
+      {
+        "symbol": "MF-MOTILAL-MIDCAP",
+        "name": "Motilal Oswal Midcap Fund (Direct-G) \u2014 AMFI 127042",
+        "category": "MUTUAL FUND",
+        "weightPct": 20.7,
+        "beta": 0.94,
+        "individualVaR": 1.74,
+        "marginalRiskContributionPct": 22.2,
+        "aladdinRole": "SYSTEMATIC ALPHA COMPOUNDER",
+        "liquidityHorizonDays": 2.1
+      }
+    ],
+    "factorDecomposition": {
+      "macroGrowth": {
+        "label": "Macro Economic Growth",
+        "sensitivity": 0.88,
+        "fillPct": 88,
+        "status": "Expansion Capture",
+        "color": "emerald"
+      },
+      "crudeHedge": {
+        "label": "Crude Oil & Energy Commodity Hedge",
+        "sensitivity": 0.68,
+        "fillPct": 68,
+        "status": "Positive Shield (+0.68)",
+        "color": "cyan"
+      },
+      "qualitySolvency": {
+        "label": "Quality / Balance Sheet Solvency (ROCE 22.4%)",
+        "sensitivity": 0.92,
+        "fillPct": 92,
+        "status": "Prime Solvency",
+        "color": "purple"
+      },
+      "interestRates": {
+        "label": "Interest Rate & Duration Risk",
+        "sensitivity": -0.16,
+        "fillPct": 18,
+        "status": "Low-Debt Insulated",
+        "color": "blue"
+      },
+      "fxCurrency": {
+        "label": "Rupee FX / Dollar Depreciation Sensitivity",
+        "sensitivity": 0.35,
+        "fillPct": 35,
+        "status": "Exporter Buffered",
+        "color": "amber"
+      },
+      "specificRisk": {
+        "label": "Idiosyncratic / Specific Residual Risk",
+        "sensitivity": 0.18,
+        "fillPct": 18,
+        "status": "Diversified (18.2%)",
+        "color": "rose"
+      }
+    },
+    "stressScenarios": [
+      {
+        "id": "gfc",
+        "name": "2008 GFC Global Liquidity Freeze",
+        "marketShock": -35.0,
+        "crudeShock": -40.0,
+        "rateShock": -100,
+        "projectedLossPct": -22.4,
+        "projectedLossAmt": -570750,
+        "survivalScore": 86,
+        "primaryDefense": "GOLDBEES (+18.5%) & Cash Buffer"
+      },
+      {
+        "id": "covid",
+        "name": "2020 Covid Liquidity Crash & Fast Stimulus",
+        "marketShock": -26.0,
+        "crudeShock": -50.0,
+        "rateShock": -150,
+        "projectedLossPct": -16.8,
+        "projectedLossAmt": -428060,
+        "survivalScore": 91,
+        "primaryDefense": "Quality Low-Debt Solvency"
+      },
+      {
+        "id": "crude",
+        "name": "Geopolitical Middle-East Energy Shock (+35% Crude)",
+        "marketShock": -5.2,
+        "crudeShock": 35.0,
+        "rateShock": 50,
+        "projectedLossPct": 3.8,
+        "projectedLossAmt": 96820,
+        "survivalScore": 98,
+        "primaryDefense": "ONGC (+24.5%) & BHARATCOAL (+12.8%)"
+      },
+      {
+        "id": "rates",
+        "name": "Central Bank Hawkish Rate Shock (+150 bps)",
+        "marketShock": -8.5,
+        "crudeShock": -5.0,
+        "rateShock": 150,
+        "projectedLossPct": -6.2,
+        "projectedLossAmt": -157970,
+        "survivalScore": 92,
+        "primaryDefense": "Zero-Debt SUZLON & High ROCE TCS"
+      },
+      {
+        "id": "fx",
+        "name": "Rupee Currency Depreciation (+6% USD/INR)",
+        "marketShock": -4.0,
+        "crudeShock": 10.0,
+        "rateShock": 25,
+        "projectedLossPct": 2.4,
+        "projectedLossAmt": 61150,
+        "survivalScore": 94,
+        "primaryDefense": "TCS (IT Exporter) & GOLDBEES"
+      },
+      {
+        "id": "stagflation",
+        "name": "Global Stagflation (Crude +20%, Rates +100 bps, GDP -1.5%)",
+        "marketShock": -12.0,
+        "crudeShock": 20.0,
+        "rateShock": 100,
+        "projectedLossPct": -4.8,
+        "projectedLossAmt": -122300,
+        "survivalScore": 90,
+        "primaryDefense": "Natural Commodity Hedge & Value Cash Flows"
+      }
+    ],
+    "rebalancingPlaybook": {
+      "recommendation": "Maintain proactive accumulation in value dip tranches (BHARATCOAL, NIFTYBEES, MF-NIPPON-SMALLCAP). Keep 10% structural Gold & Sovereign Crude hedge to retain sub-1.8% daily tail VaR.",
+      "cashReserveTargetPct": 8.0,
+      "currentCashReservePct": 6.5,
+      "maxSingleAssetCapPct": 15.0
+    }
+  }
+}

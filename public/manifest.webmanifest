@@ -1,24 +1,24 @@
 {
-  "id": "/",
+  "id": "alphavault-terminal-pwa",
   "name": "AlphaVault Institutional Research Terminal",
   "short_name": "AlphaVault",
-  "description": "Continuous automated daily investment analysis and deep micro-level research for stocks, ETFs, and mutual funds.",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Continuous automated daily investment analysis, Argon-4 quant autopilot, and Aladdin institutional risk engine.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#070b12",
   "theme_color": "#070b12",
   "categories": ["finance", "productivity", "business"],
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "./icon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icon.svg",
+      "src": "./icon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "maskable"

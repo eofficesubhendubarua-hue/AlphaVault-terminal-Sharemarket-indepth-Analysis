@@ -98,7 +98,7 @@ export const ScorecardMatrix: React.FC<ScorecardMatrixProps> = ({
     );
     if (existing) {
       setSelectedAsset(existing);
-      setSearch('');
+      setSearch(existing.ticker);
       setImportStatusMsg(`Selected ${existing.ticker} (${existing.name}) in the Multi-Horizon Matrix.`);
       return;
     }
@@ -106,7 +106,7 @@ export const ScorecardMatrix: React.FC<ScorecardMatrixProps> = ({
     const newAsset = convertDirectoryItemToWatchlistAsset(item);
     onAddWatchlistAssets?.([newAsset]);
     setSelectedAsset(newAsset);
-    setSearch('');
+    setSearch(newAsset.ticker);
     setImportStatusMsg(
       `Added ${newAsset.name} (${newAsset.ticker} • ${newAsset.type}) to the Multi-Horizon Matrix with full 1D–1Y returns, business model & contracts!`
     );
@@ -494,9 +494,9 @@ export const ScorecardMatrix: React.FC<ScorecardMatrixProps> = ({
           </div>
         </div>
 
-        {/* Search Input with Whole-Market Directory Autocomplete Dropdown */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-center relative z-40">
-          <div className="lg:col-span-6 relative z-40">
+        {/* Search Input with 130+ Market Directory Autocomplete Dropdown */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-center">
+          <div className="lg:col-span-6 relative">
             <MarketSearchDropdown
               value={search}
               onChange={setSearch}
@@ -511,7 +511,7 @@ export const ScorecardMatrix: React.FC<ScorecardMatrixProps> = ({
                   handleSelectOrAddSuggestion(undefined, search);
                 }
               }}
-              placeholder="Search whole share market: any Stock, ETF, Mutual Fund, or IPO (e.g. Suzlon, Paytm, Waaree, TCS, HDFC)..."
+              placeholder="Search 130+ stocks, ETFs, mutual funds & IPOs (e.g. PICC, PIIND, TCS, Reliance, Nifty BeES)..."
               idPrefix="matrix-search"
             />
           </div>
