@@ -10,6 +10,7 @@ import {
   Bot,
   ChevronLeft,
   ChevronRight,
+  Landmark,
 } from 'lucide-react';
 
 export type NavTab = 'autopilot' | 'radar' | 'deep' | 'matrix' | 'drawdowns' | 'gatekeeper' | 'aladdin' | 'alerts';
@@ -24,7 +25,7 @@ export const TABS = [
   { id: 'radar' as NavTab, label: 'Daily Radar', shortLabel: 'Radar', icon: Compass, badge: 'Automated' },
   { id: 'deep' as NavTab, label: 'AI Deep Audit', shortLabel: 'AI Deep', icon: Sparkles, badge: 'Thinking' },
   { id: 'matrix' as NavTab, label: '19-Asset Matrix', shortLabel: 'Matrix', icon: Layers, count: '19' },
-  { id: 'aladdin' as NavTab, label: 'Aladdin Risk Suite', shortLabel: 'Aladdin', icon: Cpu, badge: 'Risk & VaR' },
+  { id: 'aladdin' as NavTab, label: 'Global Institutional Desks (BlackRock • GS • Jefferies • Rothschild)', shortLabel: 'Global Desks', icon: Landmark, badge: 'Aladdin • GS • Rothschild' },
   { id: 'alerts' as NavTab, label: 'Profit Hunter & Alerts', shortLabel: 'Alerts', icon: BellRing, badge: 'Dips' },
   { id: 'drawdowns' as NavTab, label: 'Selling Heatmap & Watchlist', shortLabel: 'Heatmap', icon: TrendingDown, badge: 'Heatmap' },
   { id: 'gatekeeper' as NavTab, label: 'Watchlist Lab', shortLabel: 'Watchlist', icon: ShieldCheck, badge: '5-Gate' },

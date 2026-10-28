@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BlockDealItem,
   InstitutionalHoldingActivity,
   InsiderTradingDisclosure,
+  GlobalInstitutionalConsensus,
 } from '../types/investment';
+import { generateGlobalInstitutionalConsensus } from '../utils/institutionalIntelligence';
 import {
   Building2,
   Users,
@@ -19,6 +21,11 @@ import {
   FileText,
   BadgePercent,
   Calendar,
+  Landmark,
+  Award,
+  ShieldAlert,
+  Cpu,
+  Sparkles,
 } from 'lucide-react';
 
 interface InstitutionalIntelligenceViewProps {
@@ -27,6 +34,7 @@ interface InstitutionalIntelligenceViewProps {
   blockDeals?: BlockDealItem[];
   institutionalActivity?: InstitutionalHoldingActivity;
   insiderTrading?: InsiderTradingDisclosure[];
+  institutionalConsensus?: GlobalInstitutionalConsensus;
 }
 
 export const InstitutionalIntelligenceView: React.FC<InstitutionalIntelligenceViewProps> = ({
@@ -35,9 +43,14 @@ export const InstitutionalIntelligenceView: React.FC<InstitutionalIntelligenceVi
   blockDeals = [],
   institutionalActivity,
   insiderTrading = [],
+  institutionalConsensus,
 }) => {
-  const [activeTab, setActiveTab] = useState<'fii-dii' | 'block-deals' | 'insider'>('fii-dii');
+  const [activeTab, setActiveTab] = useState<'global-desks' | 'fii-dii' | 'block-deals' | 'insider'>('global-desks');
   const [dealFilter, setDealFilter] = useState<'ALL' | 'BLOCK' | 'BULK'>('ALL');
+
+  const consensus = useMemo(() => {
+    return institutionalConsensus || generateGlobalInstitutionalConsensus({ ticker, type: category });
+  }, [institutionalConsensus, ticker, category]);
 
   const filteredDeals = blockDeals.filter(d => {
     if (dealFilter === 'BLOCK') return d.dealType === 'BLOCK_DEAL';
@@ -70,7 +83,19 @@ export const InstitutionalIntelligenceView: React.FC<InstitutionalIntelligenceVi
         </div>
 
         {/* Tab Switcher */}
-        <div className="inline-flex rounded-lg bg-slate-950 p-1 border border-slate-800 text-xs mono">
+        <div className="inline-flex flex-wrap rounded-lg bg-slate-950 p-1 border border-slate-800 text-xs mono">
+          <button
+            type="button"
+            onClick={() => setActiveTab('global-desks')}
+            className={`px-3 py-1.5 rounded-md font-semibold transition flex items-center gap-1.5 ${
+              activeTab === 'global-desks'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Landmark className="w-3.5 h-3.5" />
+            <span>4 Global Desks (Aladdin • GS • Jefferies • Rothschild)</span>
+          </button>
           <button
             type="button"
             onClick={() => setActiveTab('fii-dii')}
@@ -109,6 +134,173 @@ export const InstitutionalIntelligenceView: React.FC<InstitutionalIntelligenceVi
           </button>
         </div>
       </div>
+
+      {/* TAB 0: 4 GLOBAL DESKS (BLACKROCK ALADDIN • GOLDMAN SACHS • JEFFERIES • ROTHSCHILD) */}
+      {activeTab === 'global-desks' && (
+        <div className="space-y-4">
+          {/* Consensus Score Banner */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-purple-950/30 to-emerald-950/40 border border-blue-500/30 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-emerald-600 flex items-center justify-center font-black text-white text-lg shadow-lg mono">
+                {consensus.consensusScore}
+              </div>
+              <div>
+                <div className="text-[10px] uppercase font-bold text-slate-400 mono">Global Institutional Consensus Score</div>
+                <div className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <span>{consensus.name} ({consensus.ticker})</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                    {consensus.consensusAction.replace(/_/g, ' ')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs mono">
+              <span className="text-slate-400">Desks Synthesized:</span>
+              <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold">
+                BlackRock • GS • Jefferies • Rothschild
+              </span>
+            </div>
+          </div>
+
+          {/* 4 Desks Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            {/* 1. BlackRock Aladdin */}
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-blue-500/30 flex flex-col justify-between gap-2.5">
+              <div>
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-[10px] font-bold mono px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center gap-1">
+                    <Cpu className="w-3 h-3" />
+                    BLACKROCK ALADDIN
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 mono">
+                    Beta: {consensus.blackrock.factorBeta}x
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-white mono mt-1">
+                  1D VaR 95%: <span className="text-rose-400 font-extrabold">-{consensus.blackrock.var95Pct}%</span>
+                </div>
+                <div className="text-[11px] text-slate-400 mono mt-0.5">
+                  Expected Shortfall: -{consensus.blackrock.cvar99Pct}%
+                </div>
+                <div className="mt-2 text-[11px] text-slate-300 bg-slate-900/90 p-2 rounded border border-slate-800">
+                  <span className="text-[10px] text-amber-400 font-bold block mb-0.5">Tail-Risk Directive:</span>
+                  {consensus.blackrock.aladdinHedgeDirective}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-800 text-[10px] mono text-slate-400 flex justify-between">
+                <span>Lehman '08: <strong className="text-rose-400">{consensus.blackrock.stressTestDrawdowns.gfc2008}%</strong></span>
+                <span>Covid '20: <strong className="text-rose-400">{consensus.blackrock.stressTestDrawdowns.covid2020}%</strong></span>
+              </div>
+            </div>
+
+            {/* 2. Goldman Sachs */}
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-amber-500/30 flex flex-col justify-between gap-2.5">
+              <div>
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-[10px] font-bold mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                    <Building2 className="w-3 h-3" />
+                    GOLDMAN SACHS
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-400 mono">
+                    +{consensus.goldmanSachs.upsidePotentialPct}% Upside
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-white mono mt-1">
+                  12M Target: <span className="text-amber-400 font-extrabold">₹{consensus.goldmanSachs.targetPrice12M}</span>
+                </div>
+                <div className="text-[11px] text-slate-400 mono mt-0.5">
+                  Rating: <strong className="text-emerald-400">{consensus.goldmanSachs.convictionRating.replace(/_/g, ' ')}</strong>
+                </div>
+                <div className="mt-2 text-[11px] text-slate-300 bg-slate-900/90 p-2 rounded border border-slate-800">
+                  <span className="text-[10px] text-blue-400 font-bold block mb-0.5">Marquee/SecDB Rationale:</span>
+                  {consensus.goldmanSachs.catalystTimeline}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-800 text-[10px] mono text-slate-400 flex justify-between">
+                <span>EVA Spread: <strong className="text-emerald-400">+{consensus.goldmanSachs.evaSpreadPct}%</strong></span>
+                <span>Sharpe: <strong className="text-blue-300">{consensus.goldmanSachs.sharpeRatio}</strong></span>
+              </div>
+            </div>
+
+            {/* 3. Jefferies */}
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-emerald-500/30 flex flex-col justify-between gap-2.5">
+              <div>
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-[10px] font-bold mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    JEFFERIES
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-400 mono">
+                    Greed: {consensus.jefferies.greedAndFearScore}/100
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-white mono mt-1">
+                  Cycle: <span className="text-emerald-400 font-extrabold">{consensus.jefferies.cyclePhase.replace(/_/g, ' ')}</span>
+                </div>
+                <div className="text-[11px] text-slate-400 mono mt-0.5">
+                  Capex Backlog Growth: +{consensus.jefferies.capexBacklogGrowthPct}% YoY
+                </div>
+                <div className="mt-2 text-[11px] text-slate-300 bg-slate-900/90 p-2 rounded border border-slate-800">
+                  <span className="text-[10px] text-emerald-400 font-bold block mb-0.5">GARP Strategy:</span>
+                  {consensus.jefferies.jefferiesDeskTake}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-800 text-[10px] mono text-slate-400 flex justify-between">
+                <span>GARP Discount: <strong className="text-emerald-400">{consensus.jefferies.garpMultipleDiscountPct}%</strong></span>
+                <span>Flow: <strong className="text-blue-300">DII SIP Buy</strong></span>
+              </div>
+            </div>
+
+            {/* 4. Rothschild & Co */}
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-purple-500/30 flex flex-col justify-between gap-2.5">
+              <div>
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-[10px] font-bold mono px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center gap-1">
+                    <Award className="w-3 h-3" />
+                    ROTHSCHILD &amp; CO
+                  </span>
+                  <span className="text-[10px] font-bold text-purple-400 mono">
+                    Moat: {consensus.rothschild.intergenerationalMoatScore}/100
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-white mono mt-1">
+                  Grade: <span className="text-purple-300 font-extrabold">{consensus.rothschild.sovereignProtectionGrade.replace(/_/g, ' ')}</span>
+                </div>
+                <div className="text-[11px] text-slate-400 mono mt-0.5">
+                  Altman Z-Score: {consensus.rothschild.altmanZScore} (Safe Solvency)
+                </div>
+                <div className="mt-2 text-[11px] text-slate-300 bg-slate-900/90 p-2 rounded border border-slate-800">
+                  <span className="text-[10px] text-purple-400 font-bold block mb-0.5">Wealth Preservation:</span>
+                  {consensus.rothschild.wealthPreservationHorizon}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-slate-800 text-[10px] mono text-slate-400 flex justify-between">
+                <span>Pledge: <strong className="text-emerald-400">{consensus.rothschild.promoterPledgePct}%</strong></span>
+                <span>CFO/EBITDA: <strong className="text-emerald-400">{consensus.rothschild.cleanCashConversionPct}%</strong></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Unified Institutional Theses */}
+          <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+            <span className="text-[11px] font-bold text-slate-300 mono uppercase flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+              Unified Institutional Investment Theses
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              {consensus.unifiedMacroTheses.map((thesis, idx) => (
+                <div key={idx} className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-start gap-2">
+                  <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px] font-bold mono flex-shrink-0 mt-0.5">
+                    {idx + 1}
+                  </span>
+                  <p className="text-slate-300 leading-relaxed text-[11px]">{thesis}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* TAB 1: FII & DII ACTIVITY */}
       {activeTab === 'fii-dii' && institutionalActivity && (

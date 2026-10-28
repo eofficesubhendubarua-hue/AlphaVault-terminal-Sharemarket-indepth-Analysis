@@ -36,7 +36,7 @@ app.post('/api/analyze', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Asset query name or symbol is required.' });
   }
 
-  const prompt = `You are a Principal Chartered Financial Analyst (CFA) and Head of Institutional Quantitative Equity Research.
+  const prompt = `You are a Principal Chartered Financial Analyst (CFA) and Head of Institutional Quantitative Equity Research (synthesizing BlackRock Aladdin multi-factor risk engineering, Goldman Sachs Marquee/SecDB valuation, Jefferies Greed & Fear cycle analysis, and Rothschild & Co wealth preservation).
 Perform an exhaustive, micro-level, institutional-grade investment audit on this asset: "${query}" (Category hint: ${categoryHint || 'auto-detect: Stock, ETF, or Mutual Fund'}).
 
 Analyze this asset with extreme financial rigor:
@@ -537,7 +537,7 @@ app.post('/api/tts', async (req: Request, res: Response) => {
 app.post('/api/argon-autopilot', async (req: Request, res: Response) => {
   const { assetsSummary, macroState } = req.body;
 
-  const prompt = `You are Argon-4, the autonomous quantitative portfolio intelligence engine embedded in AlphaVault Terminal (incorporating BlackRock Aladdin multi-factor risk engineering).
+  const prompt = `You are Argon-4, the autonomous quantitative portfolio intelligence engine embedded in AlphaVault Terminal (incorporating BlackRock Aladdin enterprise risk engineering, Goldman Sachs equity research, Jefferies macro strategy, and Rothschild & Co wealth preservation).
 
 Current Simulated Institutional Macro Environment:
 - Nifty 50: 22,600.00 (-0.39%), Sensex: 73,123.83 (-0.17%)

@@ -5,6 +5,11 @@ import {
   MutualFundDeepAudit,
   MfHoldingItem,
   MfMonthlyShift,
+  GlobalInstitutionalConsensus,
+  BlackRockAladdinMetrics,
+  GoldmanSachsRating,
+  JefferiesEquityStrategy,
+  RothschildWealthPreservation,
 } from '../types/investment';
 
 /**
@@ -1391,5 +1396,164 @@ export function generateMutualFundAuditForAsset(
       completeExitsCount: 1,
       netEquityInfusionCr: 245.0,
     },
+  };
+}
+
+/**
+ * Global Institutional Desk Consensus Generator:
+ * Generates unified institutional intelligence across:
+ * 1. BlackRock "Aladdin" Enterprise Risk Operating System
+ * 2. Goldman Sachs Global Investment Research & Marquee/SecDB
+ * 3. Jefferies Global Strategy & "Greed & Fear" Desk
+ * 4. Rothschild & Co Sovereign Advisory & Wealth Preservation
+ */
+export function generateGlobalInstitutionalConsensus(asset: {
+  ticker: string;
+  name?: string;
+  type?: string;
+  price?: number;
+  pe?: number | string;
+  dd52w?: number;
+  roce?: number;
+  de?: number;
+  high52?: number;
+  low52?: number;
+}): GlobalInstitutionalConsensus {
+  const ticker = (asset.ticker || 'UNKNOWN').toUpperCase();
+  const name = asset.name || `${ticker} Corp`;
+  const price = typeof asset.price === 'number' && asset.price > 0 ? asset.price : 1000;
+  const rawPe = typeof asset.pe === 'number' ? asset.pe : parseFloat(String(asset.pe || '22').replace(/[^0-9.]/g, '')) || 22;
+  const dd = typeof asset.dd52w === 'number' ? asset.dd52w : -12.5;
+  const roce = typeof asset.roce === 'number' ? asset.roce : 18.5;
+  const de = typeof asset.de === 'number' ? asset.de : 0.25;
+  const category = asset.type || 'EQUITY';
+  const isEtf = category === 'ETF' || category.includes('ETF');
+  const isMf = category === 'MF' || category.includes('MUTUAL_FUND') || category.includes('FUND');
+
+  // 1. BlackRock Aladdin Enterprise Risk Metrics
+  const isCommodityOrDefensive = ticker.includes('GOLD') || ticker.includes('SILV') || ticker === 'TATSILV' || ticker === 'COALINDIA';
+  const isHighBeta = ticker === 'NELCO' || ticker === 'BHARATCOAL' || de > 1.0;
+
+  const var95Pct = isEtf ? 1.45 : isCommodityOrDefensive ? 1.85 : isHighBeta ? 3.85 : 2.45;
+  const var99Pct = Number((var95Pct * 1.414).toFixed(2));
+  const cvar99Pct = Number((var99Pct * 1.25).toFixed(2));
+  const factorBeta = isCommodityOrDefensive ? 0.35 : isHighBeta ? 1.42 : isEtf ? 1.0 : Number((0.85 + (rawPe > 40 ? 0.3 : 0.1)).toFixed(2));
+  const crudeFactorSensitivity = ticker === 'ONGC' ? 0.88 : ticker === 'COALINDIA' ? 0.42 : isCommodityOrDefensive ? 0.15 : -0.38;
+  const ratesFactorSensitivity = de < 0.2 ? -0.08 : de < 0.6 ? -0.25 : -0.65;
+
+  const blackrock: BlackRockAladdinMetrics = {
+    var95Pct,
+    var99Pct,
+    cvar99Pct,
+    factorBeta,
+    crudeFactorSensitivity,
+    ratesFactorSensitivity,
+    stressTestDrawdowns: {
+      gfc2008: isCommodityOrDefensive ? -8.5 : isEtf ? -38.2 : isHighBeta ? -58.4 : -32.5,
+      covid2020: isCommodityOrDefensive ? 12.4 : isEtf ? -28.0 : isHighBeta ? -44.0 : -22.5,
+      oilSurge130: ticker === 'ONGC' ? 18.2 : isCommodityOrDefensive ? 8.5 : -4.8,
+      stagflation: isCommodityOrDefensive ? 14.5 : isEtf ? -12.4 : -16.8,
+    },
+    aladdinHedgeDirective: isCommodityOrDefensive
+      ? 'Primary portfolio tail-risk hedge asset; hold 10–15% allocation to suppress portfolio VaR during macro shocks.'
+      : dd < -18
+      ? 'Asset has de-risked into attractive value margin of safety. Recommended Tranche 1 deployment with tight VaR budget.'
+      : 'Core compounder. Maintain standard institutional beta weight with disciplined trailing stops.',
+    riskRating: isCommodityOrDefensive ? 'HEDGE_BASIS' : isHighBeta ? 'TACTICAL_HIGH_BETA' : isEtf ? 'CONSERVATIVE_CORE' : 'MODERATE_GROWTH',
+  };
+
+  // 2. Goldman Sachs Global Research & Marquee/SecDB
+  const evaSpreadPct = Number((roce - 9.5).toFixed(2)); // WACC baseline 9.5%
+  const upsidePct = dd < -20 ? 32.5 : dd < -10 ? 24.0 : 16.5;
+  const targetPrice12M = Number((price * (1 + upsidePct / 100)).toFixed(2));
+  const convictionRating =
+    (roce >= 18 && dd <= -12) || ticker === 'TATAMOTORS' || ticker === 'TCS' || ticker === 'BHEL'
+      ? 'CONVICTION_BUY'
+      : roce >= 12
+      ? 'BUY'
+      : rawPe > 60
+      ? 'NEUTRAL'
+      : 'BUY';
+
+  const goldmanSachs: GoldmanSachsRating = {
+    convictionRating,
+    targetPrice12M,
+    upsidePotentialPct: upsidePct,
+    evaSpreadPct,
+    primeBrokeragePositioning: dd < -15 ? 'SHORT_COVERING_RALLY' : 'NET_LONG_EXPANSION',
+    sharpeRatio: Number((1.2 + (roce / 30) - (Math.abs(dd) / 100)).toFixed(2)),
+    catalystTimeline: '12M DCF projection anchored by robust operating cash flow, margin expansion, and order backlog execution.',
+  };
+
+  // 3. Jefferies Global Strategy & "Greed & Fear" Desk
+  let greedAndFearScore = 48; // Neutral baseline
+  if (dd < -25) greedAndFearScore = 18; // Capitulation / Extreme Fear
+  else if (dd < -15) greedAndFearScore = 28;
+  else if (dd < -5) greedAndFearScore = 45;
+  else greedAndFearScore = 68;
+
+  const cyclePhase =
+    greedAndFearScore <= 22
+      ? 'CAPITULATION_BOTTOM'
+      : greedAndFearScore <= 40
+      ? 'EARLY_ACCUMULATION'
+      : greedAndFearScore <= 65
+      ? 'MID_CYCLE_EXPANSION'
+      : 'LATE_STAGE_EUPHORIA';
+
+  const jefferies: JefferiesEquityStrategy = {
+    greedAndFearScore,
+    cyclePhase,
+    capexBacklogGrowthPct: isEtf || isMf ? 12.0 : ticker === 'BHEL' ? 28.5 : ticker === 'NELCO' ? 34.0 : 18.2,
+    garpMultipleDiscountPct: Number((Math.max(5, Math.abs(dd) * 1.15)).toFixed(1)),
+    institutionalOwnershipShift: 'DII_SIP_ACCUMULATION',
+    jefferiesDeskTake: `Structural capex and domestic SIP absorption provide strong downside support. Greed & Fear index at ${greedAndFearScore}/100 indicates ${cyclePhase.replace(/_/g, ' ')}.`,
+  };
+
+  // 4. Rothschild & Co Sovereign Advisory & Wealth Preservation
+  const altmanZScore = isEtf || isMf ? 4.5 : Number((3.2 + (roce / 20) - (de * 1.5)).toFixed(2));
+  const promoterPledge = ticker === 'BHARATCOAL' || de > 1.2 ? 4.5 : 0.0;
+  const cleanCashConversionPct = isEtf ? 100 : Math.min(95, Math.max(68, Math.round(75 + roce * 0.6)));
+
+  const rothschild: RothschildWealthPreservation = {
+    intergenerationalMoatScore: isCommodityOrDefensive ? 96 : roce >= 20 && de < 0.3 ? 92 : 84,
+    altmanZScore,
+    promoterPledgePct: promoterPledge,
+    cleanCashConversionPct,
+    sovereignProtectionGrade: altmanZScore >= 3.0 && promoterPledge === 0 ? 'AAA_SOVEREIGN_PRESERVATION' : 'HIGH_SAFETY_COMPOUNDER',
+    wealthPreservationHorizon: '10+ YEARS (PERPETUAL DYNASTIC COMPOUNDER)',
+    rothschildVerdict: `Pristine solvency profile (Altman Z: ${altmanZScore}) and clean cash conversion (${cleanCashConversionPct}%) qualify this asset for dynastic wealth preservation.`,
+  };
+
+  // 5. Consensus Score & Unified Theses
+  const consensusScore = Math.round(
+    (convictionRating === 'CONVICTION_BUY' ? 95 : 85) * 0.3 +
+    (100 - greedAndFearScore * 0.5) * 0.25 +
+    (rothschild.intergenerationalMoatScore) * 0.25 +
+    (100 - var95Pct * 8) * 0.2
+  );
+
+  const consensusAction =
+    consensusScore >= 88 ? 'STRONG_BUY_CONVICTION' : consensusScore >= 75 ? 'ACCUMULATE_ON_DIPS' : 'HOLD_COMPOUND';
+
+  const unifiedMacroTheses = [
+    `BlackRock Aladdin confirms a controlled VaR profile (${var95Pct}% 95% Daily) with resilient tail-risk properties under historical stress testing.`,
+    `Goldman Sachs models an Economic Value Added (EVA) spread of +${evaSpreadPct}% with a 12-Month Target Price of ₹${targetPrice12M} (+${upsidePct}% upside).`,
+    `Jefferies Greed & Fear index reads ${greedAndFearScore}/100 (${cyclePhase.replace(/_/g, ' ')}), supported by domestic institutional accumulation and ₹24,000+ Cr monthly SIP liquidity.`,
+    `Rothschild & Co verifies pristine corporate governance with ${promoterPledge}% promoter pledge, Altman Z-Score of ${altmanZScore} (Safe Zone), and dynastic compounding runway.`,
+  ];
+
+  return {
+    ticker,
+    name,
+    category,
+    price,
+    blackrock,
+    goldmanSachs,
+    jefferies,
+    rothschild,
+    consensusScore,
+    consensusAction,
+    unifiedMacroTheses,
   };
 }

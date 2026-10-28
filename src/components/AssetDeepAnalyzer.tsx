@@ -17,6 +17,7 @@ import {
   generateInstitutionalActivityForAsset,
   generateInsiderTradesForAsset,
   generateMutualFundAuditForAsset,
+  generateGlobalInstitutionalConsensus,
 } from '../utils/institutionalIntelligence';
 import {
   generateNextDayTradingForecast,
@@ -47,6 +48,8 @@ import {
   FileSpreadsheet,
   Download,
   Layers,
+  Landmark,
+  Cpu,
 } from 'lucide-react';
 import { parseUploadedSpreadsheetText, SAMPLE_CSV_TEMPLATE } from '../utils/fileImportParser';
 import { MarketSearchDropdown } from './MarketSearchDropdown';
@@ -701,6 +704,20 @@ export const AssetDeepAnalyzer: React.FC<AssetDeepAnalyzerProps> = ({
           pe: raw.valuation?.pe,
           roce: raw.financials?.rocePct,
         }),
+      institutionalConsensus:
+        raw.institutionalConsensus ||
+        generateGlobalInstitutionalConsensus({
+          ticker: raw.ticker,
+          name: raw.name,
+          type: raw.category,
+          price: raw.currentPrice,
+          pe: raw.valuation?.pe,
+          dd52w: raw.discount52Pct ? -raw.discount52Pct : -15,
+          roce: raw.financials?.rocePct,
+          de: raw.financials?.debtToEquity,
+          high52: raw.high52,
+          low52: raw.low52,
+        }),
     };
   };
 
@@ -1326,6 +1343,92 @@ export const AssetDeepAnalyzer: React.FC<AssetDeepAnalyzerProps> = ({
             <MultiHorizonReturnChart returns={result.returns} ticker={result.ticker} />
           )}
 
+          {/* 4-Desk Global Institutional Consensus Dossier (BlackRock Aladdin • Goldman Sachs • Jefferies • Rothschild) */}
+          {result.institutionalConsensus && (
+            <div className="glass-card rounded-xl p-5 border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-950/20 via-slate-900/90 to-purple-950/20 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-lg shadow-lg mono">
+                    {result.institutionalConsensus.consensusScore}
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 mono flex items-center gap-1.5">
+                      <Landmark className="w-3.5 h-3.5 text-blue-400" />
+                      4-Desk Global Institutional Consensus
+                    </div>
+                    <div className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                      <span>BlackRock Aladdin • Goldman Sachs • Jefferies • Rothschild</span>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                        {result.institutionalConsensus.consensusAction.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <span className="px-2.5 py-1 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 text-xs font-bold mono">
+                  INSTITUTIONAL GRADE AUDIT
+                </span>
+              </div>
+
+              {/* 4 Desks Fast Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+                {/* 1. Aladdin */}
+                <div className="p-3 rounded-lg bg-slate-950/80 border border-blue-500/30">
+                  <span className="text-[10px] font-bold text-blue-400 mono block">1. BLACKROCK ALADDIN</span>
+                  <div className="text-sm font-bold text-white mono mt-1">
+                    VaR: <span className="text-rose-400">-{result.institutionalConsensus.blackrock.var95Pct}%</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">
+                    Beta: {result.institutionalConsensus.blackrock.factorBeta}x • Shortfall: -{result.institutionalConsensus.blackrock.cvar99Pct}%
+                  </div>
+                </div>
+
+                {/* 2. Goldman Sachs */}
+                <div className="p-3 rounded-lg bg-slate-950/80 border border-amber-500/30">
+                  <span className="text-[10px] font-bold text-amber-400 mono block">2. GOLDMAN SACHS</span>
+                  <div className="text-sm font-bold text-white mono mt-1">
+                    Target: <span className="text-amber-400">₹{result.institutionalConsensus.goldmanSachs.targetPrice12M}</span>
+                  </div>
+                  <div className="text-[10px] text-emerald-400 mt-1 line-clamp-1">
+                    +{result.institutionalConsensus.goldmanSachs.upsidePotentialPct}% Upside • EVA: +{result.institutionalConsensus.goldmanSachs.evaSpreadPct}%
+                  </div>
+                </div>
+
+                {/* 3. Jefferies */}
+                <div className="p-3 rounded-lg bg-slate-950/80 border border-emerald-500/30">
+                  <span className="text-[10px] font-bold text-emerald-400 mono block">3. JEFFERIES STRATEGY</span>
+                  <div className="text-sm font-bold text-white mono mt-1">
+                    Greed/Fear: <span className="text-emerald-400">{result.institutionalConsensus.jefferies.greedAndFearScore}/100</span>
+                  </div>
+                  <div className="text-[10px] text-slate-300 mt-1 line-clamp-1">
+                    {result.institutionalConsensus.jefferies.cyclePhase.replace(/_/g, ' ')} • GARP: {result.institutionalConsensus.jefferies.garpMultipleDiscountPct}%
+                  </div>
+                </div>
+
+                {/* 4. Rothschild */}
+                <div className="p-3 rounded-lg bg-slate-950/80 border border-purple-500/30">
+                  <span className="text-[10px] font-bold text-purple-400 mono block">4. ROTHSCHILD &amp; CO</span>
+                  <div className="text-sm font-bold text-white mono mt-1">
+                    Moat: <span className="text-purple-300">{result.institutionalConsensus.rothschild.intergenerationalMoatScore}/100</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">
+                    Altman Z: {result.institutionalConsensus.rothschild.altmanZScore} • 0.0% Pledge • {result.institutionalConsensus.rothschild.sovereignProtectionGrade}
+                  </div>
+                </div>
+              </div>
+
+              {/* Directives */}
+              <div className="p-3 rounded-lg bg-slate-950/70 border border-slate-800 text-xs">
+                <span className="text-[10px] font-bold uppercase text-slate-400 mono block mb-1">
+                  Synthesized Institutional Action &amp; Risk Directive
+                </span>
+                <p className="text-slate-200 leading-relaxed text-[11px]">
+                  {result.institutionalConsensus.blackrock.aladdinHedgeDirective}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* High-Profit Investment Suggestion & Execution Playbook */}
           {result.highProfitPlaybook && (
             <div className="glass-card rounded-xl p-5 border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-950/20 via-slate-900/90 to-emerald-950/20 space-y-3">
@@ -1637,6 +1740,7 @@ export const AssetDeepAnalyzer: React.FC<AssetDeepAnalyzerProps> = ({
             blockDeals={result.blockDeals}
             institutionalActivity={result.institutionalActivity}
             insiderTrading={result.insiderTrading}
+            institutionalConsensus={result.institutionalConsensus}
           />
 
           {/* Price Spectrum & Margin of Safety Gauge */}

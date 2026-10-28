@@ -452,5 +452,68 @@ test('predictiveAnalysisEngine: generates multi-horizon future compounding targe
   assert.ok(ppfcfFuture.accumulationPlaybook.includes('SIP'));
 });
 
+test('institutionalIntelligence: generates BlackRock Aladdin, Goldman Sachs, Jefferies, and Rothschild consensus', async () => {
+  const { generateGlobalInstitutionalConsensus } = await import('./institutionalIntelligence');
+
+  // Test Equity Asset: TATAMOTORS
+  const tataConsensus = generateGlobalInstitutionalConsensus({
+    ticker: 'TATAMOTORS',
+    name: 'Tata Motors Passenger Vehicles Ltd',
+    type: 'EQUITY',
+    price: 928.4,
+    pe: 14.8,
+    dd52w: -17.5,
+    roce: 21.4,
+    de: 0.38,
+    high52: 1125.0,
+    low52: 780.0,
+  });
+
+  // Verify BlackRock Aladdin
+  assert.ok(tataConsensus.blackrock.var95Pct > 0, 'Aladdin VaR 95% must be positive magnitude');
+  assert.ok(tataConsensus.blackrock.cvar99Pct > tataConsensus.blackrock.var95Pct, 'CVaR must exceed VaR');
+  assert.ok(tataConsensus.blackrock.factorBeta > 0, 'Market beta must be positive');
+  assert.ok(tataConsensus.blackrock.stressTestDrawdowns.gfc2008 < 0, 'Stress drawdowns must be negative');
+  assert.ok(tataConsensus.blackrock.aladdinHedgeDirective.length > 10, 'Must have tail risk directive');
+
+  // Verify Goldman Sachs
+  assert.ok(tataConsensus.goldmanSachs.targetPrice12M > 928.4, '12M target must reflect upside');
+  assert.ok(tataConsensus.goldmanSachs.upsidePotentialPct > 0, 'Upside potential must be positive');
+  assert.ok(tataConsensus.goldmanSachs.evaSpreadPct > 0, 'EVA spread ROCE - WACC must be positive');
+  assert.ok(['CONVICTION_BUY', 'BUY', 'NEUTRAL'].includes(tataConsensus.goldmanSachs.convictionRating));
+
+  // Verify Jefferies
+  assert.ok(tataConsensus.jefferies.greedAndFearScore >= 0 && tataConsensus.jefferies.greedAndFearScore <= 100);
+  assert.ok(['EARLY_ACCUMULATION', 'MID_CYCLE_EXPANSION', 'CAPITULATION_BOTTOM', 'LATE_STAGE_EUPHORIA', 'DISTRIBUTION_PEAK'].includes(tataConsensus.jefferies.cyclePhase));
+  assert.ok(tataConsensus.jefferies.capexBacklogGrowthPct > 0);
+  assert.ok(tataConsensus.jefferies.garpMultipleDiscountPct > 0);
+
+  // Verify Rothschild & Co
+  assert.ok(tataConsensus.rothschild.intergenerationalMoatScore >= 0 && tataConsensus.rothschild.intergenerationalMoatScore <= 100);
+  assert.ok(tataConsensus.rothschild.altmanZScore > 0);
+  assert.equal(tataConsensus.rothschild.promoterPledgePct, 0.0, 'Zero pledge invariant');
+  assert.ok(tataConsensus.rothschild.cleanCashConversionPct > 0);
+
+  // Verify Consensus Synthesis
+  assert.ok(tataConsensus.consensusScore >= 0 && tataConsensus.consensusScore <= 100);
+  assert.ok(tataConsensus.unifiedMacroTheses.length >= 3, 'Must have 4 unified macro theses');
+  assert.ok(['STRONG_BUY_CONVICTION', 'ACCUMULATE_ON_DIPS', 'HOLD_COMPOUND', 'TRIM_DEFENSIVE', 'AVOID_CAPITAL_LOSS'].includes(tataConsensus.consensusAction));
+
+  // Test Mutual Fund / ETF: PPFCF
+  const ppfcfConsensus = generateGlobalInstitutionalConsensus({
+    ticker: 'PPFCF',
+    name: 'Parag Parikh Flexi Cap Fund',
+    type: 'MF',
+    price: 84.65,
+    pe: 22.0,
+    dd52w: -5.2,
+    roce: 22.0,
+    de: 0.0,
+  });
+  assert.ok(ppfcfConsensus.rothschild.intergenerationalMoatScore >= 80, 'PPFCF should have elite dynastic moat');
+  assert.ok(ppfcfConsensus.blackrock.stressTestDrawdowns.covid2020 < 0);
+});
+
+
 
 

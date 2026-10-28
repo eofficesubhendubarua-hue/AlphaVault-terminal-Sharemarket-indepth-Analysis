@@ -7,6 +7,7 @@ import { ScorecardMatrix } from './components/ScorecardMatrix';
 import { MicrostructureAndDrawdowns } from './components/MicrostructureAndDrawdowns';
 import { GatekeeperWatchlist } from './components/GatekeeperWatchlist';
 import { AladdinRiskSuite } from './components/AladdinRiskSuite';
+import { GlobalInstitutionalDesk } from './components/GlobalInstitutionalDesk';
 import { ProfitHunterAlerts } from './components/ProfitHunterAlerts';
 import { Argon4Autopilot } from './components/Argon4Autopilot';
 import { EngineSettingsModal } from './components/EngineSettingsModal';
@@ -347,9 +348,9 @@ export default function App() {
           />
         )}
 
-        {/* Tab 4: BlackRock Aladdin Enterprise Risk & Factor Decomposition Suite */}
+        {/* Tab 4: Global Institutional Research & Aladdin Enterprise Suite (BlackRock • GS • Jefferies • Rothschild) */}
         {activeTab === 'aladdin' && (
-          <AladdinRiskSuite
+          <GlobalInstitutionalDesk
             assets={assets}
             onSelectAssetForAudit={handleDeepAnalyzeTicker}
           />

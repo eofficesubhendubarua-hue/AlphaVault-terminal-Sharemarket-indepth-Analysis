@@ -30,6 +30,8 @@ export interface WatchlistAsset {
   maxDd12m: number;
   worstDay: string;
   pe: string;
+  roce?: number;
+  de?: number;
   mcap: string;
   trend: string;
   verdict: VerdictType;
@@ -356,6 +358,7 @@ export interface InDepthAnalysisResult {
   mutualFundAudit?: MutualFundDeepAudit;
   nextDayTrading?: NextDayTradingForecast;
   futureInvestment?: FutureInvestmentForecast;
+  institutionalConsensus?: GlobalInstitutionalConsensus;
 }
 
 export interface DailyRadarSnapshot {
@@ -503,4 +506,69 @@ export interface MarketSyncStatus {
   lastTickIso: string;
   syncMode: 'ULTRA_FAST' | 'HIGH' | 'NORMAL' | 'PAUSED';
   source: 'STREAM_SSE' | 'DIRECT_QUANT_ENGINE';
+}
+
+// ============================================================================
+// GLOBAL INSTITUTIONAL DESK & SOFTWARE PLATFORMS
+// (BlackRock Aladdin • Goldman Sachs • Jefferies • Rothschild & Co)
+// ============================================================================
+
+export interface BlackRockAladdinMetrics {
+  var95Pct: number;
+  var99Pct: number;
+  cvar99Pct: number;
+  factorBeta: number;
+  crudeFactorSensitivity: number;
+  ratesFactorSensitivity: number;
+  stressTestDrawdowns: {
+    gfc2008: number;
+    covid2020: number;
+    oilSurge130: number;
+    stagflation: number;
+  };
+  aladdinHedgeDirective: string;
+  riskRating: 'CONSERVATIVE_CORE' | 'MODERATE_GROWTH' | 'TACTICAL_HIGH_BETA' | 'HEDGE_BASIS';
+}
+
+export interface GoldmanSachsRating {
+  convictionRating: 'CONVICTION_BUY' | 'BUY' | 'NEUTRAL' | 'SELL' | 'CONVICTION_SELL';
+  targetPrice12M: number;
+  upsidePotentialPct: number;
+  evaSpreadPct: number;
+  primeBrokeragePositioning: 'NET_LONG_EXPANSION' | 'SHORT_COVERING_RALLY' | 'BALANCED_HEDGE' | 'INSTITUTIONAL_EXIT';
+  sharpeRatio: number;
+  catalystTimeline: string;
+}
+
+export interface JefferiesEquityStrategy {
+  greedAndFearScore: number; // 0 to 100
+  cyclePhase: 'CAPITULATION_BOTTOM' | 'EARLY_ACCUMULATION' | 'MID_CYCLE_EXPANSION' | 'LATE_STAGE_EUPHORIA' | 'DISTRIBUTION_PEAK';
+  capexBacklogGrowthPct: number;
+  garpMultipleDiscountPct: number;
+  institutionalOwnershipShift: 'DII_SIP_ACCUMULATION' | 'FII_REVERSAL_INFLOWS' | 'PROMOTER_EXPANSION' | 'RETAIL_CHURN';
+  jefferiesDeskTake: string;
+}
+
+export interface RothschildWealthPreservation {
+  intergenerationalMoatScore: number; // 0 to 100
+  altmanZScore: number;
+  promoterPledgePct: number;
+  cleanCashConversionPct: number;
+  sovereignProtectionGrade: 'AAA_SOVEREIGN_PRESERVATION' | 'HIGH_SAFETY_COMPOUNDER' | 'BALANCED_EQUITY' | 'SPECULATIVE_RISK';
+  wealthPreservationHorizon: '10+ YEARS (PERPETUAL DYNASTIC COMPOUNDER)' | '5–10 YEARS' | '3–5 YEARS';
+  rothschildVerdict: string;
+}
+
+export interface GlobalInstitutionalConsensus {
+  ticker: string;
+  name: string;
+  category: string;
+  price: number;
+  blackrock: BlackRockAladdinMetrics;
+  goldmanSachs: GoldmanSachsRating;
+  jefferies: JefferiesEquityStrategy;
+  rothschild: RothschildWealthPreservation;
+  consensusScore: number; // 0 to 100
+  consensusAction: 'STRONG_BUY_CONVICTION' | 'ACCUMULATE_ON_DIPS' | 'HOLD_COMPOUND' | 'TRIM_DEFENSIVE' | 'AVOID_CAPITAL_LOSS';
+  unifiedMacroTheses: string[];
 }
