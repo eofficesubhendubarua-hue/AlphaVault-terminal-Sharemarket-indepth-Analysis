@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   Compass,
   Sparkles,
@@ -8,6 +8,8 @@ import {
   Cpu,
   BellRing,
   Bot,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 export type NavTab = 'autopilot' | 'radar' | 'deep' | 'matrix' | 'drawdowns' | 'gatekeeper' | 'aladdin' | 'alerts';
@@ -29,36 +31,114 @@ export const TABS = [
 ];
 
 export const DesktopNavbar: React.FC<NavProps> = ({ activeTab, onTabChange }) => {
+  const navRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = useCallback(() => {
+    if (!navRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = navRef.current;
+    setCanScrollLeft(scrollLeft > 6);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 6);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, [checkScroll]);
+
+  // Automatically scroll active tab into view when changed
+  useEffect(() => {
+    if (!navRef.current) return;
+    const activeBtn = navRef.current.querySelector<HTMLElement>('[data-active="true"]');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    checkScroll();
+  }, [activeTab, checkScroll]);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (!navRef.current) return;
+    const offset = direction === 'left' ? -280 : 280;
+    navRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    setTimeout(checkScroll, 250);
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (!navRef.current) return;
+    if (e.deltaY !== 0) {
+      navRef.current.scrollLeft += e.deltaY * 1.2;
+      checkScroll();
+    }
+  };
+
   return (
-    <nav className="hidden md:flex items-center gap-1.5 max-w-7xl mx-auto px-4 pb-2.5 overflow-x-auto no-scrollbar">
-      {TABS.map(tab => {
-        const Icon = tab.icon;
-        const isActive = activeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition active:scale-95 whitespace-nowrap cursor-pointer ${
-              isActive
-                ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-900/30'
-                : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white'
-            }`}
-          >
-            <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-            <span>{tab.label}</span>
-            {tab.badge && (
-              <span
-                className={`text-[9px] px-1.5 py-0.2 rounded font-bold mono ${
-                  isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
-                }`}
-              >
-                {tab.badge}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </nav>
+    <div className="hidden md:flex items-center relative max-w-7xl mx-auto px-2 sm:px-4 pb-2 group">
+      {/* Scroll Left Button */}
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => handleScroll('left')}
+          className="absolute left-1 z-20 p-1.5 rounded-full bg-slate-900/95 border border-slate-700 text-slate-200 hover:text-white hover:bg-blue-600 hover:border-blue-500 shadow-xl shadow-black/80 transition-all flex items-center justify-center -translate-y-0.5 cursor-pointer backdrop-blur-md"
+          title="Scroll Tabs Left"
+          aria-label="Scroll Tabs Left"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* Tabs Horizontal Track */}
+      <div
+        ref={navRef}
+        onScroll={checkScroll}
+        onWheel={handleWheel}
+        className="flex items-center gap-2 overflow-x-auto scroll-smooth py-1 px-1 w-full tab-scroll-track"
+        style={{ scrollbarWidth: 'thin' }}
+      >
+        {TABS.map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              data-active={isActive ? 'true' : 'false'}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all active:scale-95 whitespace-nowrap cursor-pointer flex-shrink-0 ${
+                isActive
+                  ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-900/40 ring-1 ring-blue-400/30'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white hover:bg-slate-850'
+              }`}
+            >
+              <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+              <span className="font-medium whitespace-nowrap">{tab.label}</span>
+              {tab.badge && (
+                <span
+                  className={`text-[9px] px-1.5 py-0.2 rounded font-bold mono whitespace-nowrap ${
+                    isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
+                  }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Scroll Right Button */}
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => handleScroll('right')}
+          className="absolute right-1 z-20 p-1.5 rounded-full bg-slate-900/95 border border-slate-700 text-slate-200 hover:text-white hover:bg-blue-600 hover:border-blue-500 shadow-xl shadow-black/80 transition-all flex items-center justify-center -translate-y-0.5 cursor-pointer backdrop-blur-md"
+          title="Scroll Tabs Right"
+          aria-label="Scroll Tabs Right"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+    </div>
   );
 };
 
