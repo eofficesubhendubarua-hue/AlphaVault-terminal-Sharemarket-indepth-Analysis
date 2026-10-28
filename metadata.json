@@ -1,0 +1,6 @@
+{
+  "name": "AlphaVault Terminal",
+  "description": "Continuous automated daily investment analysis, Argon-4 quant autopilot, and Aladdin institutional research for stocks, ETFs, and mutual funds.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

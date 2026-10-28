@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlphaVault Institutional Research Terminal & Value Harvester</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #070b12; color: #e2e8f0; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card { background: rgba(15, 23, 42, 0.88); border: 1px solid rgba(51, 65, 85, 0.75); }
+    .tab-active { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border-color: #3b82f6; }
+    .mode-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #ffffff; border-color: #10b981; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .live-dot { animation: pulse-dot 1.6s infinite ease-in-out; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Top Institutional Header & Compliance Banner -->
+  <header class="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 backdrop-blur-md">
+    <div class="bg-slate-900/90 border-b border-slate-800/80 px-4 py-1.5 text-[11px] text-slate-300 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <span class="font-bold text-amber-400 mono">COMPLIANCE &amp; METHODOLOGY:</span>
+        Research &amp; decision support only — NOT brokerage execution, human fund management, or a profit guarantee. Twice-daily scheduled snapshots (8:30 AM &amp; 9:30 PM IST) are not continuous real-time intraday monitoring.
+      </div>
+      <div class="mono text-slate-400">
+        Direct–Growth = Explicit MF Research Default • No Silent Instrument Substitution
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/30">
+          AV
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">AlphaVault Institutional Research Terminal &amp; Value Harvester</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 mono">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+              <span id="live-date-badge">INDIA CLOSED (SAT OCT 24, 2026) • SETTLEMENT: 2026-10-23</span>
+            </span>
+            <span id="live-clock-ist" class="text-[11px] text-slate-400 mono"></span>
+          </div>
+          <p class="text-xs text-slate-400">Morning Investment Radar (8:30 AM) &amp; Evening Market Review (9:30 PM) • Full 19-Asset Audit, iNAV/Overlap, Causal Macro &amp; Next-Session Scenarios</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher & Export Controls -->
+      <div class="flex flex-wrap items-center gap-2 text-xs mono">
+        <div class="inline-flex rounded-lg bg-slate-900 p-0.5 border border-slate-700">
+          <button id="btn-mode-morning" class="mode-active px-2.5 py-1 rounded-md text-[11px] font-semibold transition">
+            ☀ Morning Radar (8:30 AM)
+          </button>
+          <button id="btn-mode-evening" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-300 hover:text-white transition">
+            ☾ Evening Review (9:30 PM)
+          </button>
+        </div>
+        <button id="btn-toggle-live" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-semibold transition flex items-center gap-1.5" title="Optional stress-test micro-tick simulator">
+          <span id="sim-indicator" class="w-2 h-2 rounded-full bg-slate-500"></span>
+          <span id="sim-label">Stress Sim: OFF (Verified Close)</span>
+        </button>
+        <button id="btn-export-full-csv" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition">
+          ⬇ Export Full 19-Asset CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs (All 6 Comprehensive Modules) -->
+    <div class="max-w-7xl mx-auto px-4 pb-2.5 flex flex-wrap gap-1.5">
+      <button data-tab="briefing" class="nav-tab tab-active px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700 transition">
+        1. Decision-First Briefing &amp; Identifier Audit
+      </button>
+      <button data-tab="scorecard" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
+        2. 19-Asset Multi-Horizon Matrix &amp; Deep Thesis
+      </button>
+      <button data-tab="drawdowns" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
+        3. 3%–5% vs &gt;5% Falls, Heatmap &amp; Drawdowns
+      </button>
+      <button data-tab="etfmf" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
+        4. ETF iNAV / Tech Overlap &amp; MF FoF Audit
+      </button>
+      <button data-tab="macro" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
+        5. Global Causal Macro, FII/DII, Options &amp; Scenarios
+      </button>
+      <button data-tab="custom" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-emerald-300 border border-emerald-800/60 hover:border-emerald-500 transition">
+        6. IPO Prospectus Radar &amp; + Watchlist Gatekeeper Lab
+      </button>
+      <button data-tab="fuel" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-amber-300 border border-amber-800/60 hover:border-amber-500 transition">
+        7. New Fuel of Money, SAST/Insider Audit &amp; Live BSM Greeks Calculator
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 py-5 space-y-6">
+
+    <!-- Top Session & Macro Status Strip -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="glass-card rounded-xl p-3.5">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mono">
+          <span>INDIA BENCHMARKS</span>
+          <span class="text-amber-400">2026-10-23 CLOSE</span>
+        </div>
+        <div class="mt-1 text-sm font-bold text-white mono">Nifty: 22,600.00 <span class="text-rose-400">-0.39%</span></div>
+        <div class="text-xs text-slate-300 mono">Sensex: 73,123.83 <span class="text-rose-400">-0.17%</span></div>
+        <p class="mt-1 text-[11px] text-slate-400">Midcap 100: -2.21% | Smallcap 100: -2.94%</p>
+      </div>
+
+      <div class="glass-card rounded-xl p-3.5">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mono">
+          <span>US SESSION (COMPLETED)</span>
+          <span class="text-emerald-400">2026-10-23 EOD</span>
+        </div>
+        <div class="mt-1 text-sm font-bold text-white mono">Nasdaq: 25,955.34 <span class="text-rose-400">-0.21%</span></div>
+        <div class="text-xs text-slate-300 mono">S&amp;P 500: 7,623.68 <span class="text-rose-400">-0.52%</span></div>
+        <p class="mt-1 text-[11px] text-slate-400">Dow: -1.2% | Russell 2000: 2,775.90 (-0.29%)</p>
+      </div>
+
+      <div class="glass-card rounded-xl p-3.5">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mono">
+          <span>FII / DII CASH (PROVISIONAL)</span>
+          <span class="text-blue-400">2026-10-23</span>
+        </div>
+        <div class="mt-1 text-sm font-bold text-emerald-400 mono">FII: +₹887.65 Cr</div>
+        <div class="text-xs text-emerald-300 mono">DII: +₹3,235.36 Cr</div>
+        <p class="mt-1 text-[11px] text-slate-400">30D: FII -₹88,438 Cr vs DII +₹98,922 Cr</p>
+      </div>
+
+      <div class="glass-card rounded-xl p-3.5">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mono">
+          <span>CRUDE, FX &amp; BULLION</span>
+          <span class="text-rose-400">GEOPOLITICAL RISK</span>
+        </div>
+        <div class="mt-1 text-sm font-bold text-amber-400 mono">Brent: $115.76 <span class="text-rose-400">+1.42%</span></div>
+        <div class="text-xs text-slate-300 mono">USD/INR: 94.9430 (RBI Ref)</div>
+        <p class="mt-1 text-[11px] text-slate-400">Gold: $4,028/oz | Silver: $54.40/oz (-5.7% Wk)</p>
+      </div>
+
+      <div class="glass-card rounded-xl p-3.5">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mono">
+          <span>OPTIONS &amp; VIX (27 OCT EXP)</span>
+          <span class="text-purple-400">BSM GREEKS</span>
+        </div>
+        <div class="mt-1 text-sm font-bold text-white mono">India VIX: 15.81 <span class="text-rose-400">+0.83%</span></div>
+        <div class="text-xs text-slate-300 mono">PCR (OI): 0.82 | Max Pain: 22,700</div>
+        <p class="mt-1 text-[11px] text-slate-400">FII Index Fut OI: -2,80,300 Net Short</p>
+      </div>
+    </section>
+
+    <!-- TAB 1: DECISION-FIRST BRIEFING, PRIOR-CALL AUDIT & IDENTIFIER RESOLUTION -->
+    <section id="panel-briefing" class="tab-panel space-y-5">
+      <div id="mode-banner-card" class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span id="mode-badge" class="px-2.5 py-0.5 text-[11px] font-bold rounded bg-emerald-500/20 text-emerald-300 mono">MORNING INVESTMENT RADAR MODE (8:30 AM IST SPEC)</span>
+            <h2 id="mode-headline" class="text-base sm:text-lg font-bold text-white mt-1">Decision-First Market-Risk Assessment &amp; Next-Session Preparation (Monday, Oct 26, 2026)</h2>
+          </div>
+          <span class="text-xs text-slate-400 mono">Execution Snapshot: 2026-10-24 IST</span>
+        </div>
+        <div id="mode-summary-content" class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-amber-400 mb-1">1. Primary Market-Risk Regime</div>
+            <p class="leading-relaxed">Brent crude at a 5-month high ($114.45–$115.76/bbl, +8.6% weekly) on Strait of Hormuz and Saudi infrastructure risks alongside USD/INR at 94.9430 (RBI reference rate) pressured rate-sensitive midcaps (-2.21%) and smallcaps (-2.94%). However, simultaneous FII (+₹887.65 Cr) and DII (+₹3,235.36 Cr) net cash buying on Oct 23 confirms institutional absorption beneath retail F&amp;O liquidation.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-emerald-400 mb-1">2. High-Conviction Research Priorities</div>
+            <p class="leading-relaxed">Focus conditional accumulation on low-P/E, high-cash-conversion cyclicals that pulled back 3%–5% into structural support: <strong class="text-white">Hindustan Zinc</strong> (10.07x P/E, ₹496.00), <strong class="text-white">Coal India</strong> (7.85x P/E, 6.67% yield, ₹397.45), <strong class="text-white">Tata Capital</strong> (24.08x P/E, ₹306.90 near ₹296 52W low), <strong class="text-white">BHEL</strong> (₹385.35), <strong class="text-white">Samvardhana Motherson</strong> (₹151.67), and physical bullion ETFs (<strong class="text-white">TATAGOLD / TATSILV</strong>).</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-rose-400 mb-1">3. Critical Microstructure &amp; Overlap Warnings</div>
+            <p class="leading-relaxed"><strong class="text-white">Strictly AVOID MONQ50</strong> (trades at ₹221.50 vs ₹116.90 iNAV — an 89.5% artificial premium that caused a -14.75% intraday flash crash to ₹189.56 on Oct 23). Note that <strong class="text-white">Invesco Global FoFs have suspended fresh subscriptions</strong> under RBI's $7B overseas cap, and `MAFANG`, `MASPTOP50`, `MON100` &amp; `INV-GCT` carry &gt;60% US mega-cap AI overlap.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prior-Call Verification Audit -->
+      <div class="glass-card rounded-xl p-5">
+        <h3 class="text-sm sm:text-base font-bold text-white mb-1">Accessible Prior-Call Audit (2026-10-22 Evening Report vs. 2026-10-23 Actual Market Outcome)</h3>
+        <p class="text-xs text-slate-400 mb-3">Verifies historical guidance against realised exchange OHLC data from Friday, October 23, 2026.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-3.5 rounded-lg bg-slate-900/80 border border-emerald-500/30">
+            <div class="font-bold text-emerald-400 mono">AUDIT 1: NIFTY 22,810 GAMMA TRIGGER</div>
+            <p class="mt-1 text-slate-300"><strong>Prior Call (Oct 22):</strong> Do not chase a gap-up open unless Nifty sustains above 22,810. <br><strong>Realised (Oct 23):</strong> Nifty opened +55 pts at 22,742, peaked at <span class="mono text-white">22,787</span> (23 pts shy of 22,810), and reversed to close at <span class="mono text-white">22,600.00 (-0.39%)</span>.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/80 border border-emerald-500/30">
+            <div class="font-bold text-emerald-400 mono">AUDIT 2: MONQ50 iNAV PREMIUM TRAP</div>
+            <p class="mt-1 text-slate-300"><strong>Prior Call (Oct 22):</strong> Classified `MONQ50` as `AVOID` due to ~90% premium over ₹116.90 iNAV. <br><strong>Realised (Oct 23):</strong> Crashed <span class="mono text-rose-400">-14.75% intraday to ₹189.56</span> at 10:05 AM IST in a liquidity air-pocket before closing at ₹221.50.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/80 border border-emerald-500/30">
+            <div class="font-bold text-emerald-400 mono">AUDIT 3: MOREPENLAB ₹108–₹115 DIP ZONE</div>
+            <p class="mt-1 text-slate-300"><strong>Prior Call (Oct 22):</strong> Buy `MOREPENLAB` only on 3%–5% morning shakeouts into ₹108–₹115. <br><strong>Realised (Oct 23):</strong> Dipped <span class="mono text-amber-400">-3.97% to ₹113.00</span> at 10:55 AM IST, then surged +9.3% off the low to lock at <span class="mono text-emerald-400">+5.00% Upper Circuit (₹123.55)</span>.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Identifier Verification & Non-Substitution Table -->
+      <div class="glass-card rounded-xl p-5">
+        <h3 class="text-sm sm:text-base font-bold text-white mb-1">Watchlist Identifier Verification, Scheme Renamings &amp; Non-Substitution Audit</h3>
+        <p class="text-xs text-slate-400 mb-3">Explicitly resolves user-supplied strings against official NSE, BSE, and AMFI registries without silent substitution.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900/60">
+                <th class="py-2.5 px-3">User Input</th>
+                <th class="py-2.5 px-2">Resolution Status</th>
+                <th class="py-2.5 px-3">Verified Official Name, Exchange Symbol &amp; ISIN</th>
+                <th class="py-2.5 px-3">Authoritative Evidence &amp; Non-Substitution Protocol</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70">
+              <tr>
+                <td class="py-2.5 px-3 mono text-amber-300">MASTOP50</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold mono text-[10px]">VERIFIED TYPO</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">Mirae Asset S&amp;P 500 Top 50 ETF (<span class="mono text-blue-300">NSE: MASPTOP50 | BSE: 543365 | INF769K01HP3</span>)</td>
+                <td class="py-2.5 px-3 text-slate-300">Official NSE ticker includes the first 'P' (`MASPTOP50`).</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 mono text-amber-300">MONQ50</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold mono text-[10px]">VERIFIED</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">Motilal Oswal Nasdaq Q 50 ETF (<span class="mono text-blue-300">NSE: MONQ50 | BSE: 543437 | INF247L01AU3</span>)</td>
+                <td class="py-2.5 px-3 text-slate-300">Replicates NASDAQ Q-50 TR Index; subject to severe NSE iNAV premium distortion.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 mono text-amber-300">Tata Capital</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold mono text-[10px]">VERIFIED</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">Tata Capital Limited (<span class="mono text-blue-300">NSE: TATACAP | BSE: 544280 | INE306N01018</span>)</td>
+                <td class="py-2.5 px-3 text-slate-300">Listed mainboard NBFC subsidiary of Tata Sons Pvt Ltd.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 mono text-rose-300">TNIETF</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold mono text-[10px]">UNRESOLVED STRING</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">No exact NSE/BSE ticker `TNIETF` | Closest Indian ETF: <span class="mono text-blue-300">NSE: TNIDETF | BSE: 543510 | INF277KA1364</span> (Tata Nifty India Digital ETF)</td>
+                <td class="py-2.5 px-3 text-slate-300">Never assumed to be a Taiwan ETF. Flagged `DATA INSUFFICIENT` on literal `TNIETF` while displaying full verified metrics for `NSE: TNIDETF`.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 mono text-amber-300">tatagoldetf</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold mono text-[10px]">VERIFIED</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">Tata Gold Exchange Traded Fund (<span class="mono text-blue-300">NSE: TATAGOLD | BSE: 544086 | INF277KA1976</span>)</td>
+                <td class="py-2.5 px-3 text-slate-300">Backed by 99.5% fineness physical gold bullion; 1 unit ≈ 1 mg gold.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 mono text-rose-300">Silveretf</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold mono text-[10px]">AMBIGUOUS AMC</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">Dual-Tracked: <span class="mono text-blue-300">NSE: TATSILV (INF277KA1984)</span> &amp; <span class="mono text-blue-300">NSE: SILVERBEES (INF204KB17I5)</span></td>
+                <td class="py-2.5 px-3 text-slate-300">Multiple AMCs issue Silver ETFs; both `TATSILV` (Tata Silver ETF, 0.44% TER) and `SILVERBEES` (Nippon India Silver ETF) are tracked to prevent silent substitution.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 mono text-amber-300">Mutual Funds (5)</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 font-bold mono text-[10px]">DIRECT–GROWTH DEFAULT</span></td>
+                <td class="py-2.5 px-3 font-semibold text-white">Quant Small Cap (<span class="mono">INF966L01689</span>), MO Midcap (<span class="mono">INF247L01445</span>), Quant Mid Cap (<span class="mono">INF966L01887</span>), Invesco Global Eq. Income FoF (<span class="mono">INF205K01B49</span>), Invesco Global Consumer FoF (<span class="mono">INF205K013U1</span>)</td>
+                <td class="py-2.5 px-3 text-slate-300">`MO Midcap` was formerly *Motilal Oswal Most Focused Midcap 30 Fund*. **Both Invesco Global FoFs currently have fresh lumpsum/SIP subscriptions suspended** under RBI's $7B overseas limit.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: 19-ASSET MULTI-HORIZON MATRIX & DEEP THESIS -->
+    <section id="panel-scorecard" class="tab-panel hidden space-y-5">
+      <div class="glass-card rounded-xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Complete 19-Asset Multi-Horizon Performance, Calendar Return, Drawdown &amp; Technical Matrix</h2>
+            <p class="text-xs text-slate-400">Distinguishes Price Returns (PR) for Equities/ETFs vs Net Total Returns (TR) for Direct–Growth Mutual Funds. Click any price cell (`✎`) to test custom prices or click <span class="text-blue-400 font-semibold">"Deep Thesis"</span>.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <input id="search-input" type="text" placeholder="Search ticker, ISIN, classification..." class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-blue-500">
+            <select id="category-filter" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-blue-500">
+              <option value="ALL">All Categories (19)</option>
+              <option value="EQUITY">Indian Equities (7)</option>
+              <option value="ETF">Domestic &amp; Global ETFs (7)</option>
+              <option value="MF">Mutual Funds &amp; FoFs (5)</option>
+            </select>
+            <select id="verdict-filter" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-blue-500">
+              <option value="ALL">All Classifications</option>
+              <option value="ACCUMULATE">ACCUMULATE Only</option>
+              <option value="WATCH">WATCH Only</option>
+              <option value="AVOID">AVOID Only</option>
+              <option value="DATA INSUFFICIENT">DATA INSUFFICIENT Only</option>
+            </select>
+            <select id="sort-select" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-blue-500">
+              <option value="default">Default Order (1–19)</option>
+              <option value="dip1d">Biggest 1D Fall First</option>
+              <option value="intraday">Biggest Intraday Drop First</option>
+              <option value="dip1m">Biggest 1M Pullback First</option>
+              <option value="dd52w">Deepest 52W High Discount First</option>
+              <option value="ret1y">Highest 12M Return First</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-[11px]">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase tracking-wider bg-slate-900/70">
+                <th class="py-2.5 px-2">#</th>
+                <th class="py-2.5 px-2">Instrument / ISIN</th>
+                <th class="py-2.5 px-2 text-right">Close / NAV (Obs. Date)</th>
+                <th class="py-2.5 px-2 text-right">1D % (Low %)</th>
+                <th class="py-2.5 px-2 text-right">Rolling 1M / 3M</th>
+                <th class="py-2.5 px-2 text-right">Rolling 6M / 12M</th>
+                <th class="py-2.5 px-2 text-right">Sep '26 / Jul–Sep (3M) / Oct MTD</th>
+                <th class="py-2.5 px-2 text-right">Adj 52W H (Dist %)</th>
+                <th class="py-2.5 px-2 text-right">12M Max DD &amp; Worst Day</th>
+                <th class="py-2.5 px-2">Trend, MA &amp; RS vs Nifty</th>
+                <th class="py-2.5 px-2">Classification</th>
+                <th class="py-2.5 px-2 text-center">Thesis</th>
+              </tr>
+            </thead>
+            <tbody id="scorecard-tbody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Selected Asset Deep-Dive Drawer -->
+      <div id="asset-detail-card" class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="detail-badge" class="px-2 py-0.5 text-[11px] font-bold rounded bg-blue-500/20 text-blue-300 mono">EQUITY</span>
+              <h3 id="detail-title" class="text-lg font-bold text-white">Select any instrument above to inspect full CA/CFA &amp; Institutional Desk Thesis</h3>
+            </div>
+            <p id="detail-subtitle" class="text-xs text-slate-400 mt-1">Displays normalised earnings, valuation, governance, Trading vs Investment view, counter-thesis, and invalidation triggers.</p>
+          </div>
+          <div id="detail-metrics" class="flex flex-wrap gap-2 mono text-xs"></div>
+        </div>
+        <div id="detail-body" class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs text-slate-300"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: SEGREGATED 3%–5% vs >5% FALLS, HEATMAP & DRAWDOWNS -->
+    <section id="panel-drawdowns" class="tab-panel hidden space-y-6">
+      <div class="glass-card rounded-xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Segregated Bearish Shock Audit: 3.00%–5.00% Daily Falls vs. &gt;5.00% Severe Shocks</h2>
+            <p class="text-xs text-slate-400">A 3%–5% drop or low share price is never automatic proof of value. Below, every fall is separated by magnitude and linked to its verified catalyst.</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="filter-dip-all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">Show All 19 Instruments</button>
+            <button id="filter-dip-3to5" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Filter ≥2.9% Dip Zone Only</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-amber-500/40">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase text-amber-400 mono">Bucket A: Daily Declines Strictly 3.00% to 5.00%</span>
+              <span class="px-2 py-0.5 text-[10px] rounded bg-amber-500/20 text-amber-300 mono">VALUE VS PREMIUM CHECK</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-[11px]">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400">
+                    <th class="py-1.5">Asset (Date)</th>
+                    <th class="py-1.5 text-right">Close / Low</th>
+                    <th class="py-1.5 pl-2">Verified Catalyst &amp; Verdict</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                  <tr><td class="py-1.5 font-semibold text-white">MASPTOP50 (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-4.95% Close</td><td class="py-1.5 pl-2">US S&amp;P -1.21% + NSE premium flush → <span class="text-blue-300 font-semibold">WATCH (Check iNAV)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MAFANG (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-4.87% Close</td><td class="py-1.5 pl-2">US Nasdaq -2.60% AI selloff → <span class="text-blue-300 font-semibold">WATCH (≤1.5% iNAV)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">HINDZINC (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-4.25% Close</td><td class="py-1.5 pl-2">Nifty Metal -2.71% &amp; Silver -5.7% Wk → <span class="text-emerald-400 font-semibold">ACCUMULATE (10.07x P/E)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">BHEL (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-3.40% Close</td><td class="py-1.5 pl-2">Midcap F&amp;O deleveraging → <span class="text-emerald-400 font-semibold">ACCUMULATE (₹375–386)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">HINDCOPPER (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-3.31% (-4.91% L)</td><td class="py-1.5 pl-2">LME Copper -2.53% ($6.38/lb) → <span class="text-blue-300 font-semibold">WATCH (Wait ₹380–395)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MON100 (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-3.18% Close</td><td class="py-1.5 pl-2">Premium cooling toward ₹273.52 iNAV → <span class="text-blue-300 font-semibold">WATCH (Bid ≤₹274)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">TATSILV (Oct 23)</td><td class="py-1.5 text-right mono text-rose-400">-3.06% (-4.82% L)</td><td class="py-1.5 pl-2">Silver paper shakeout (-46.7% off 52W H) → <span class="text-emerald-400 font-semibold">ACCUMULATE</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MOTHERSON (Oct 23)</td><td class="py-1.5 text-right mono text-amber-400">-4.25% Intraday</td><td class="py-1.5 pl-2">Defended ₹148.07 50-DMA, closed -1.92% → <span class="text-emerald-400 font-semibold">ACCUMULATE</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MOREPENLAB (Oct 23)</td><td class="py-1.5 text-right mono text-amber-400">-3.97% Intraday</td><td class="py-1.5 pl-2">Swept ₹113.00, reversed to +5.00% UC → <span class="text-blue-300 font-semibold">WATCH (Hold)</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">TATACAP (Oct 14)</td><td class="py-1.5 text-right mono text-rose-400">-3.28% Close</td><td class="py-1.5 pl-2">NBFC rate pullback near ₹296 52W low → <span class="text-emerald-400 font-semibold">ACCUMULATE</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-rose-500/40">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase text-rose-400 mono">Bucket B: Severe Declines Worse Than 5.00% (&gt;5% Shocks)</span>
+              <span class="px-2 py-0.5 text-[10px] rounded bg-rose-500/20 text-rose-300 mono">AIR-POCKET &amp; STOP HUNTS</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-[11px]">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400">
+                    <th class="py-1.5">Asset (Date / Time)</th>
+                    <th class="py-1.5 text-right">Shock % (Low)</th>
+                    <th class="py-1.5 pl-2">Microstructure Catalyst &amp; Lesson</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                  <tr><td class="py-1.5 font-semibold text-white">MONQ50 (Oct 23 10:05)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-14.75% (₹189.56)</td><td class="py-1.5 pl-2">Illiquid premium air-pocket (~89.5% above ₹116.90 iNAV) → <span class="text-rose-400 font-bold">STRICTLY AVOID</span></td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MAFANG (Oct 23 09:55)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-8.94% (₹236.35)</td><td class="py-1.5 pl-2">Morning panic sell orders before market-maker arbitrage stabilized at ₹246.90.</td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MON100 (Oct 23 09:45)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-7.49% (₹276.99)</td><td class="py-1.5 pl-2">Morning sweep briefly compressed NSE price within 1.3% of ₹273.52 iNAV.</td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MASPTOP50 (Oct 23 09:55)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-6.56% (₹95.50)</td><td class="py-1.5 pl-2">Opening premium flush on S&amp;P 500 tech weakness; closed at ₹97.15 (-4.95%).</td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">BHEL (Oct 23 11:00)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-5.31% (₹377.70)</td><td class="py-1.5 pl-2">Intraday leveraged F&amp;O stop-hunt absorbed by DII cash bids; closed ₹385.35.</td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">MOREPENLAB (Oct 09)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-5.13% Close</td><td class="py-1.5 pl-2">Profit-booking from ₹150.70 52W peak after +184% 6M multi-bagger run.</td></tr>
+                  <tr><td class="py-1.5 font-semibold text-white">HINDZINC (Oct 23 12:50)</td><td class="py-1.5 text-right mono text-rose-400 font-bold">-5.02% (₹492.00)</td><td class="py-1.5 pl-2">Intraday metal capitulation test at ₹492.00; strong value support at 10.07x P/E.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-slate-950/70 rounded-xl p-4 border border-slate-800">
+            <h3 class="text-sm font-bold text-white mb-1">Chart 1: Oct 23 Official Close % vs Intraday Max Dip %</h3>
+            <p class="text-[11px] text-slate-400 mb-3">Visualizes the gap between intraday panic lows and end-of-day institutional settlement.</p>
+            <div class="relative h-80">
+              <canvas id="chart-daily-dip"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/70 rounded-xl p-4 border border-slate-800">
+            <h3 class="text-sm font-bold text-white mb-1">Chart 2: Distance Below Adjusted 52W High vs 12M Window Max Drawdown (%)</h3>
+            <p class="text-[11px] text-slate-400 mb-3">Ranks all 19 instruments by their current markdown from 52-week highs and maximum 12-month drawdown.</p>
+            <div class="relative h-80">
+              <canvas id="chart-peak-drawdown"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 bg-slate-950/70 rounded-xl p-4 border border-slate-800">
+          <h3 class="text-sm font-bold text-white mb-1">Chart 3: Multi-Horizon Return Trajectory (Rolling 3M vs 6M vs 12M %)</h3>
+          <p class="text-[11px] text-slate-400 mb-3">Contrasts long-term structural compounders against cyclical pullbacks.</p>
+          <div class="relative h-80">
+            <canvas id="chart-multi-horizon"></canvas>
+          </div>
+        </div>
+
+        <!-- Visual Multi-Horizon Color-Coded Return & Drawdown Heatmap -->
+        <div class="mt-6 bg-slate-950/80 rounded-xl p-4 border border-slate-800">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white">Interactive Multi-Horizon Return &amp; Drawdown Heatmap Grid (All 19 Instruments)</h3>
+              <p class="text-[11px] text-slate-400">Color-coded institutional heatmap across 1D Close, Intraday Low, 1M, 3M, 6M, 12M, 52W High Distance, and 12M Max Drawdown.</p>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] rounded bg-blue-500/20 text-blue-300 font-semibold mono">INSTANT VISUAL VALUE SCANNER</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-[11px]">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900">
+                  <th class="py-2 px-2">Asset</th>
+                  <th class="py-2 px-2 text-center">1D Close</th>
+                  <th class="py-2 px-2 text-center">Intraday Low</th>
+                  <th class="py-2 px-2 text-center">1-Month</th>
+                  <th class="py-2 px-2 text-center">3-Month</th>
+                  <th class="py-2 px-2 text-center">6-Month</th>
+                  <th class="py-2 px-2 text-center">1-Year</th>
+                  <th class="py-2 px-2 text-center">52W High Dist</th>
+                  <th class="py-2 px-2 text-center">12M Max DD</th>
+                  <th class="py-2 px-2">Trend Structure</th>
+                </tr>
+              </thead>
+              <tbody id="heatmap-tbody" class="divide-y divide-slate-800/60 mono"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: ETF iNAV / TECH OVERLAP & MUTUAL FUND FoF AUDIT -->
+    <section id="panel-etfmf" class="tab-panel hidden space-y-6">
+      <div class="glass-card rounded-xl p-5">
+        <h2 class="text-base sm:text-lg font-bold text-white mb-1">ETF Microstructure Audit: iNAV Premium/Discount, TER, Liquidity &amp; US Tech Overlap</h2>
+        <p class="text-xs text-slate-400 mb-4">Because RBI's $7 billion overseas investment cap ($1B ETF ceiling) restricts fresh unit creation by Indian AMCs, international ETFs on NSE can trade at severe premiums to their true Intraday NAV (iNAV).</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900/60">
+                <th class="py-2.5 px-3">ETF Symbol &amp; ISIN</th>
+                <th class="py-2.5 px-2 text-right">Oct 23 Close</th>
+                <th class="py-2.5 px-2 text-right">Official NAV / iNAV</th>
+                <th class="py-2.5 px-2 text-right">Est. Premium / Discount</th>
+                <th class="py-2.5 px-2 text-right">TER &amp; Oct 23 Vol</th>
+                <th class="py-2.5 px-3">Portfolio Overlap, Bid–Ask Spread &amp; Execution Rule</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70">
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">MONQ50 (<span class="mono text-slate-400">INF247L01AU3</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹221.50</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">₹116.90 (MO ETF)</td>
+                <td class="py-2.5 px-2 text-right mono text-rose-400 font-bold">+89.48% TRAP!</td>
+                <td class="py-2.5 px-2 text-right mono">~0.58% | 8.24L</td>
+                <td class="py-2.5 px-3 text-rose-300"><strong>AVOID:</strong> Motilal Oswal AMC warned of artificial scarcity premium; crashed -14.75% intraday to ₹189.56 on Oct 23.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">MON100 (<span class="mono text-slate-400">INF247L01AP3</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹289.90</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">₹273.52 (MO iNAV)</td>
+                <td class="py-2.5 px-2 text-right mono text-amber-400 font-bold">+5.99% Premium</td>
+                <td class="py-2.5 px-2 text-right mono">~0.58% | 21.43L</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>WATCH:</strong> Tight 0.05%–0.15% spread, but still 6% above iNAV; place resting limit bids strictly at ≤₹274.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">MAFANG (<span class="mono text-slate-400">INF769K01HF4</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹246.90</td>
+                <td class="py-2.5 px-2 text-right mono text-blue-300">Verify Mirae iNAV</td>
+                <td class="py-2.5 px-2 text-right mono text-blue-300">Premium Cooled (-4.87%)</td>
+                <td class="py-2.5 px-2 text-right mono">~0.65% | 15.29L</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>WATCH:</strong> 10 equal-weight US AI/cloud megacaps; &gt;60% overlap with `MON100` &amp; `MASPTOP50`. Buy only within 1.5% of live iNAV.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">MASPTOP50 (<span class="mono text-slate-400">INF769K01HP3</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹97.15</td>
+                <td class="py-2.5 px-2 text-right mono text-blue-300">Verify Mirae iNAV</td>
+                <td class="py-2.5 px-2 text-right mono text-blue-300">Premium Cooled (-14.2% 1M)</td>
+                <td class="py-2.5 px-2 text-right mono">~0.60% | 9.80L</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>WATCH:</strong> Top 50 S&amp;P 500 giants; heavy overlap with `MON100` &amp; `MAFANG`. Verify live Mirae iNAV before bidding.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">TNIETF / TNIDETF (<span class="mono text-slate-400">INF277KA1364</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹86.90</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">~₹86.85 (Parity)</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">+0.06% (Parity)</td>
+                <td class="py-2.5 px-2 text-right mono">~0.40% | 0.99L</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>DATA INSUFFICIENT (`TNIETF`) / WATCH (`TNIDETF`):</strong> Domestic IT/Digital ETF; moderate 99k volume requires limit orders.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">TATAGOLD (<span class="mono text-slate-400">INF277KA1976</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹13.66</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">₹13.82 (Oct 22 NAV)</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">~-0.2% (Parity)</td>
+                <td class="py-2.5 px-2 text-right mono">~0.38% | 5.06 Cr</td>
+                <td class="py-2.5 px-3 text-emerald-300"><strong>ACCUMULATE:</strong> Deep liquidity (50.6M units), ₹0.01 spread, unrestricted domestic physical gold creation.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Silveretf / TATSILV (<span class="mono text-slate-400">INF277KA1984</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹18.72</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">₹19.39 (Oct 22 NAV)</td>
+                <td class="py-2.5 px-2 text-right mono text-emerald-400">~-0.4% (Parity)</td>
+                <td class="py-2.5 px-2 text-right mono">0.44% | 5.68 Cr</td>
+                <td class="py-2.5 px-3 text-emerald-300"><strong>DATA INSUFFICIENT (AMC) / ACCUMULATE (`TATSILV` / `SILVERBEES`):</strong> 56.8M units traded; -46.7% below ₹35.10 52W high.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Mutual Fund & FoF Audit Table -->
+      <div class="glass-card rounded-xl p-5">
+        <h2 class="text-base sm:text-lg font-bold text-white mb-1">Mutual Fund &amp; International FoF Audit (`Direct–Growth` Explicit Research Default)</h2>
+        <p class="text-xs text-slate-400 mb-4">Mutual funds are EOD NAV instruments (not intraday tradable). Includes combined feeder + underlying FoF TERs, manager changes, and current subscription restrictions.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900/60">
+                <th class="py-2.5 px-3">Scheme (Direct–Growth) &amp; ISIN</th>
+                <th class="py-2.5 px-2 text-right">Official NAV &amp; Date</th>
+                <th class="py-2.5 px-2 text-right">TER &amp; Exit Load</th>
+                <th class="py-2.5 px-2">1Y / 3Y / 5Y vs Category</th>
+                <th class="py-2.5 px-3">Liquidity, Concentration, Manager Changes &amp; Subscription Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70">
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Quant Small Cap Fund (<span class="mono text-slate-400">INF966L01689</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹295.26 <span class="text-slate-400">(2026-10-23)</span><br><span class="text-[10px] text-slate-400">₹302.46 (Oct 22)</span></td>
+                <td class="py-2.5 px-2 text-right mono">0.90% TER<br><span class="text-[10px] text-slate-400">1% &lt; 1 Year</span></td>
+                <td class="py-2.5 px-2 mono text-emerald-300">1Y: +11.09% (Cat +6.75%)<br>3Y: +16.58% | 5Y: +17.13%</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>ACCUMULATE:</strong> AUM ₹35,572 Cr; holds 10.5% in TREPS cash + liquid large-caps (Reliance, Jio Fin) for liquidity stress. <strong>Open for SIP &amp; Lumpsum.</strong></td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Motilal Oswal Midcap Fund (<span class="mono text-slate-400">INF247L01445</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹108.60 <span class="text-slate-400">(2026-10-23)</span><br><span class="text-[10px] text-slate-400">₹110.20 (Oct 22)</span></td>
+                <td class="py-2.5 px-2 text-right mono">0.91% TER<br><span class="text-[10px] text-slate-400">1% &lt; 365 Days</span></td>
+                <td class="py-2.5 px-2 mono text-amber-300">1Y: -4.70% (Cat +0.25%)<br>3Y: +17.11% | 5Y: +18.64%</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>WATCH (SIP Only):</strong> AUM ₹40,207.5 Cr; concentrated ~25–30 stock high-P/E QGLP portfolio (Coforge, Kalyan, Persistent, Trent). <strong>Open for SIP &amp; Lumpsum.</strong></td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Quant Mid Cap Fund (<span class="mono text-slate-400">INF966L01887</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹228.79 <span class="text-slate-400">(2026-10-23)</span><br><span class="text-[10px] text-slate-400">₹233.70 (Oct 22)</span></td>
+                <td class="py-2.5 px-2 text-right mono">1.15% TER<br><span class="text-[10px] text-slate-400">0.50% &lt; 3 Mos</span></td>
+                <td class="py-2.5 px-2 mono text-blue-300">1Y: +0.91% (Cat +0.25%)<br>3Y: +9.52% | 5Y: +13.53%</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>WATCH:</strong> AUM ₹7,653.8 Cr; Rushabh Patel added as co-manager in Oct 2026; ~18% overlap with Quant Small Cap's liquidity sleeve. <strong>Open for SIP &amp; Lumpsum.</strong></td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Invesco Global Equity Income FoF (<span class="mono text-slate-400">INF205K01B49</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹28.64 <span class="text-slate-400">(2026-10-22)</span></td>
+                <td class="py-2.5 px-2 text-right mono text-amber-300">~1.45% Combined<br><span class="text-[10px] text-slate-400">(Feeder + Underlying)</span></td>
+                <td class="py-2.5 px-2 mono text-emerald-300">1Y: +23.46%<br>6M: +5.23% | 3M: -3.64%</td>
+                <td class="py-2.5 px-3 text-amber-300"><strong>WATCH (Blocked):</strong> Low overlap with US tech (holds global dividend compounders), but <strong>fresh lumpsum &amp; new SIP registrations are SUSPENDED</strong> under RBI $7B cap.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Invesco Global Consumer Trends FoF (<span class="mono text-slate-400">INF205K013U1</span>)</td>
+                <td class="py-2.5 px-2 text-right mono text-white">₹13.43 <span class="text-slate-400">(2026-10-22)</span></td>
+                <td class="py-2.5 px-2 text-right mono text-amber-300">~1.55% Combined<br><span class="text-[10px] text-slate-400">(Feeder + Underlying)</span></td>
+                <td class="py-2.5 px-2 mono text-blue-300">1Y: -4.60%<br>6M: +13.42% | 3M: +3.15%</td>
+                <td class="py-2.5 px-3 text-amber-300"><strong>WATCH (Blocked):</strong> High overlap with `MAFANG`/`MON100` (Amazon, Meta, Netflix), and <strong>fresh lumpsum &amp; new SIP registrations are SUSPENDED</strong> under RBI $7B cap.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: GLOBAL CAUSAL MACRO, FII/DII, OPTIONS DELTA-GAMMA & NEXT-SESSION SCENARIOS -->
+    <section id="panel-macro" class="tab-panel hidden space-y-6">
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-purple-500">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Next Indian Trading Session (Monday, Oct 26, 2026) — Conditional Scenarios &amp; Calculated Pivots</h2>
+            <p class="text-xs text-slate-400">Calculated from verified 2026-10-23 Nifty 50 OHLC (Open 22,742 | High 22,787 | Low 22,580 | Close 22,600): <span class="mono text-white">Pivot P = 22,656 | R1 = 22,731 | R2 = 22,863 | S1 = 22,524 | S2 = 22,449</span></p>
+          </div>
+          <span class="px-2.5 py-0.5 text-[11px] rounded bg-purple-500/20 text-purple-300 font-bold mono">TUE OCT 27 EXPIRY WEEK</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-blue-500/40">
+            <div class="font-bold text-blue-400 mono">BASE CASE: RANGEBOUND CONSOLIDATION (S1–R1)</div>
+            <p class="mt-1.5 text-slate-300"><strong>Observable Trigger:</strong> Brent crude holds $113–$116/bbl; Nifty opens near 22,550–22,630 and defends <span class="mono text-white">S1 (22,500–22,524)</span> in the first 30 mins.<br><strong>Target Range:</strong> <span class="mono text-white">22,524 – 22,731</span> (Bank Nifty 54,000–54,500).<br><strong>Invalidation:</strong> 15-min close &lt; 22,480 or &gt; 22,787.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-emerald-500/40">
+            <div class="font-bold text-emerald-400 mono">BULL CASE: FII SHORT-COVERING SQUEEZE (&gt;R1)</div>
+            <p class="mt-1.5 text-slate-300"><strong>Observable Trigger:</strong> Weekend Middle East de-escalation pulls Brent &lt;$112/bbl; Nifty reclaims <span class="mono text-white">22,656 (P)</span> and breaks <span class="mono text-white">22,731 (R1)</span>.<br><strong>Target Range:</strong> <span class="mono text-emerald-400">22,787 – 22,863 (R2)</span> as FIIs cover -2.80L short futures.<br><strong>Invalidation:</strong> Rejection below 22,731.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-rose-500/40">
+            <div class="font-bold text-rose-400 mono">BEAR CASE: OIL SPIKE &amp; 22,500 PUT BREAKDOWN</div>
+            <p class="mt-1.5 text-slate-300"><strong>Observable Trigger:</strong> Strait of Hormuz escalation pushes Brent &gt;$117.50/bbl &amp; USD/INR &gt;95.25; Nifty breaks <span class="mono text-rose-400">22,480–22,500</span> with VIX &gt;16.8.<br><strong>Target Range:</strong> <span class="mono text-rose-400">22,350 – 22,449 (S2)</span>.<br><strong>Invalidation:</strong> Reclaim of 22,560. No leveraged recovery trades.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Global Causal Macro Table -->
+      <div class="glass-card rounded-xl p-5">
+        <h2 class="text-base sm:text-lg font-bold text-white mb-1">Global Macro &amp; Cross-Asset Causal Matrix (Verified Event → Channel → Exposure → Counterargument)</h2>
+        <p class="text-xs text-slate-400 mb-4">Distinguishes completed Friday sessions (`2026-10-23`) and weekend closures across US, Europe, Asia, FX, and Commodities.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900/60">
+                <th class="py-2.5 px-3">Market / Macro Indicator</th>
+                <th class="py-2.5 px-2">Session Status</th>
+                <th class="py-2.5 px-2 text-right">Latest Level</th>
+                <th class="py-2.5 px-2 text-right">1D / Wk %</th>
+                <th class="py-2.5 px-3">Verified Event → Economic Channel → Watchlist Exposure → Counterargument</th>
+              </tr>
+            </thead>
+            <tbody id="global-tbody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FII/DII Chart & Options BSM Sensitivity -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-xl p-5">
+          <h3 class="text-sm sm:text-base font-bold text-white mb-1">FII vs DII Multi-Window Cash Flow Audit (Through 2026-10-23)</h3>
+          <p class="text-xs text-slate-400 mb-3">1D (`2026-10-23` Prov.): FII +₹887.65 Cr, DII +₹3,235.36 Cr | 5D: FII -₹1,531.4 Cr, DII +₹7,280.9 Cr | 30D: FII -₹88,438.2 Cr, DII +₹98,921.9 Cr.</p>
+          <div class="relative h-64">
+            <canvas id="chart-fii-dii"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-5 space-y-3">
+          <h3 class="text-sm sm:text-base font-bold text-white">Options Chain, Futures Basis &amp; BSM Delta-Gamma Sensitivity (`2026-10-23` Close)</h3>
+          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs space-y-1.5">
+            <div class="font-semibold text-blue-400">1. Verified Option Chain &amp; Futures Basis (27 Oct 2026 Expiry)</div>
+            <p class="text-slate-300">Nifty Spot closed at <span class="mono text-white">22,600.00</span> with Oct Futures at a <span class="mono text-emerald-400">+30 to +38 pt premium</span>. Headline OI-based <span class="mono text-white">PCR = 0.82</span>; <span class="mono text-amber-400">India VIX = 15.81 (+0.83%)</span>; Max Pain = 22,700–22,800. Highest Put OI sits at <span class="mono text-emerald-400">22,500 PE &amp; 22,000 PE</span>; highest Call OI sits at <span class="mono text-rose-400">22,700 CE, 22,800 CE &amp; 23,000 CE</span>. Participant Futures OI: FIIs <span class="mono text-rose-400">-2,80,300 net short</span>, DIIs +37,770 net long, Clients +2,18,285 net long.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs space-y-1.5">
+            <div class="font-semibold text-emerald-400">2. Model-Based Delta-Gamma Assumptions &amp; Verified Capex Themes</div>
+            <p class="text-slate-300">Under Black-Scholes-Merton ($S=22,600, T=4/365, r=6.75\%, \sigma=15.81\%$), the ATM 22,600 straddle carries $\Delta_{\text{call}} \approx +0.51, \Delta_{\text{put}} \approx -0.49$, and elevated near-expiry $\Gamma \approx 0.0011/\text{pt}$ (model sensitivity, not invented dealer books). Meanwhile, verified institutional capital inflows are concentrated in: <strong>(1) Telecom/AI Cloud</strong> (Jio Platforms IPO 70.55x QIB demand), <strong>(2) Indian IT Services</strong> (₹6,500 Cr Oct FII buying), and <strong>(3) Indigenous Defence &amp; Power Grid</strong> (Tonbo Imaging 132.8x IPO; BHEL/Coal India capex).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: IPO PROSPECTUS RADAR & + EXPANDABLE WATCHLIST GATEKEEPER LAB -->
+    <section id="panel-custom" class="tab-panel hidden space-y-6">
+      <div class="glass-card rounded-xl p-5">
+        <h3 class="text-base font-bold text-white mb-1">Official Prospectus IPO Screening (Late Oct – Nov 2026) — Investment vs. Listing Speculation</h3>
+        <p class="text-xs text-slate-400 mb-4">Evaluated strictly on RHP valuation (P/E, ROCE), issue structure (Fresh Issue vs OFS), cash conversion, dilution, and institutional QIB demand — never on grey-market premiums (GMP) or guaranteed listing gains.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900/60">
+                <th class="py-2.5 px-3">IPO Company &amp; Segment</th>
+                <th class="py-2.5 px-2">Window &amp; Status</th>
+                <th class="py-2.5 px-2 text-right">Price Band &amp; MCap</th>
+                <th class="py-2.5 px-2 text-right">RHP P/E &amp; ROCE</th>
+                <th class="py-2.5 px-2">Subscription Status</th>
+                <th class="py-2.5 px-3">Issue Structure, Governance, Liquidity &amp; Verdict</th>
+              </tr>
+            </thead>
+            <tbody id="ipo-tbody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Expandable Watchlist Lab -->
+      <div class="glass-card rounded-xl p-5 border border-emerald-500/30">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-500/20 text-emerald-300 mono">5-GATEKEEPER EXPANSION REGISTER</span>
+            <h2 class="text-base sm:text-lg font-bold text-white mt-1">Expandable Watchlist Register &amp; Penny / Value / ETF / MF Gatekeeper Lab</h2>
+            <p class="text-xs text-slate-400">Low nominal share price or a steep percentage drop is NOT proof of undervaluation. Every new candidate added below is tested against exact ISIN identity, normalised P/E &amp; ROCE, debt/pledge governance, liquidity, and conditional invalidation rules.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="btn-export-csv" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition">Export Custom Register CSV</button>
+            <button id="btn-reset-custom" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-300 border border-slate-700 transition">Reset Preloaded Gatekeeper Samples</button>
+          </div>
+        </div>
+
+        <form id="custom-asset-form" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] text-slate-400 mb-1">Exact Legal Name, Ticker &amp; ISIN *</label>
+            <input id="inp-name" type="text" required placeholder="e.g. ONGC Ltd (NSE: ONGC | INE213A01029)" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Category *</label>
+            <select id="inp-type" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white">
+              <option value="SPECULATIVE / PENNY CANDIDATE">Speculative / Penny Candidate</option>
+              <option value="LARGE / MID EQUITY">Large / Mid Cap Equity</option>
+              <option value="ETF">ETF (Verify iNAV &amp; Spread)</option>
+              <option value="MUTUAL FUND">Mutual Fund (Direct–Growth)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Current Price / NAV (₹) *</label>
+            <input id="inp-price" type="number" step="0.01" required placeholder="e.g. 30.85" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Adjusted 52W High (₹) *</label>
+            <input id="inp-high52" type="number" step="0.01" required placeholder="e.g. 46.80" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Adjusted 52W Low (₹) *</label>
+            <input id="inp-low52" type="number" step="0.01" required placeholder="e.g. 26.10" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">1D Change (%)</label>
+            <input id="inp-1d" type="number" step="0.01" value="-3.20" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Rolling 1M (%)</label>
+            <input id="inp-1m" type="number" step="0.01" value="-11.5" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Rolling 3M (%)</label>
+            <input id="inp-3m" type="number" step="0.01" value="-8.4" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Rolling 6M (%)</label>
+            <input id="inp-6m" type="number" step="0.01" value="12.0" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Rolling 12M (%)</label>
+            <input id="inp-1y" type="number" step="0.01" value="18.0" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Normalised P/E or TER</label>
+            <input id="inp-pe" type="number" step="0.01" value="13.9" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">ROCE / ROE (%)</label>
+            <input id="inp-roce" type="number" step="0.1" value="19.5" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Debt/Eq or Pledge %</label>
+            <input id="inp-de" type="number" step="0.01" value="0.15" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Governance &amp; Liquidity Check</label>
+            <select id="inp-inst" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white">
+              <option value="PASS_INSTITUTIONAL">0% Pledge | ADTV &gt;₹10 Cr | Clean Audit</option>
+              <option value="PASS_MODERATE">0% Pledge | Moderate Liquidity</option>
+              <option value="CAUTION_ILLIQUID">Micro-Cap / Wide Spread / iNAV Risk</option>
+              <option value="FAIL_GOVERNANCE">High Pledge (&gt;10%) / Dilution Risk</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] text-slate-400 mb-1">Catalyst, Entry Condition &amp; Invalidation Trigger</label>
+            <input id="inp-notes" type="text" placeholder="e.g. Entry <=₹29 on steel recovery; Invalidate <₹25.50" class="w-full px-3 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white">
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full py-1.5 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/40 transition">
+              + Run Gatekeeper Test
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-5 overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase tracking-wider bg-slate-900/60">
+                <th class="py-3 px-3">Candidate, ISIN &amp; Governance Status</th>
+                <th class="py-3 px-2 text-right">Price / NAV</th>
+                <th class="py-3 px-2 text-right">1D / 1M / 3M</th>
+                <th class="py-3 px-2 text-right">6M / 12M</th>
+                <th class="py-3 px-2 text-right">52W Dist%</th>
+                <th class="py-3 px-2 text-right">P/E &amp; ROCE</th>
+                <th class="py-3 px-2 text-center">Gatekeeper Score</th>
+                <th class="py-3 px-2">Conditional Entry &amp; Stop</th>
+                <th class="py-3 px-2">Classification &amp; Risk Notes</th>
+                <th class="py-3 px-2 text-center">Remove</th>
+              </tr>
+            </thead>
+            <tbody id="custom-tbody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  
+    <!-- TAB 7: NEW FUEL OF MONEY, SAST/INSIDER AUDIT, SUPPLY CHAIN & LIVE BSM GREEKS CALCULATOR -->
+    <section id="panel-fuel" class="tab-panel hidden space-y-6">
+      <!-- Where Maximum Money Is Going ("New Fuel of Money") -->
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-500">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 text-[11px] font-bold rounded bg-amber-500/20 text-amber-300 mono">INSTITUTIONAL CAPITAL ROTATION &amp; GLOBAL SUPPLY CHAIN</span>
+            <h2 class="text-base sm:text-lg font-bold text-white mt-1">Where Maximum Money Is Going ("The New Fuel of Money") — 4 Verified Capex Megatrends</h2>
+            <p class="text-xs text-slate-400">Distinguishes verified institutional capital expenditure, order-book backlogs, and QIB fundraising from mere price momentum.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-amber-400 mono">1. AI POWER BASELOAD, HVDC GRID &amp; CRITICAL MINERALS</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[10px] mono">HIGHEST CAPEX VISIBILITY</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed"><strong>Economic Channel:</strong> Hyperscale AI data centers and EV gigafactories face an acute physical bottleneck in 24/7 baseload electricity, high-voltage direct current (HVDC) transformers, and conductive metals (copper, silver, zinc).<br><strong>Watchlist Beneficiaries:</strong> <strong class="text-white">BHEL</strong> (80+ GW thermal &amp; HVDC grid backlog), <strong class="text-white">Coal India</strong> (7.85x P/E, 6.67% yield, pithead thermal power), <strong class="text-white">Hindustan Zinc</strong> (10.07x P/E, top-5 global silver + lowest-cost zinc producer), <strong class="text-white">Hindustan Copper</strong>, and <strong class="text-white">Tata Silver ETF (TATSILV)</strong>.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-blue-400 mono">2. SEMICONDUCTOR PACKAGING (CoWoS) &amp; CHINA+1 EMS / API</span>
+              <span class="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 text-[10px] mono">SUPPLY-CHAIN BIFURCATION</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed"><strong>Economic Channel:</strong> US/EU tariff walls and semiconductor export controls are forcing multinational OEMs to diversify electronics manufacturing services (EMS), aerospace components, and pharmaceutical APIs out of mainland China.<br><strong>Watchlist Beneficiaries:</strong> <strong class="text-white">Taiwan TAIEX</strong> (+66.5% 1Y on TSMC CoWoS monopoly), <strong class="text-white">Samvardhana Motherson (MOTHERSON)</strong> (scaling non-auto aerospace &amp; Apple consumer electronics EMS), and <strong class="text-white">Morepen Laboratories (MOREPENLAB)</strong> (+5.00% UC on Oct 23; USFDA API export share gains).</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-400 mono">3. DEFENCE INDIGENIZATION, AUTONOMOUS WARFARE &amp; GEOPOLITICS</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[10px] mono">132.8x QIB DEMAND</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed"><strong>Economic Channel:</strong> Middle East / Strait of Hormuz escalation (Brent crude at $115.76/bbl) and Indo-Pacific defence budgets are driving sovereign orders into electro-optics, radar, heavy engineering, and bullion reserves.<br><strong>Watchlist Beneficiaries:</strong> Verified by <strong class="text-white">Tonbo Imaging India IPO's 132.81x subscription</strong>, heavy engineering orders for <strong class="text-white">BHEL</strong>, upstream crude hedge <strong class="text-white">ONGC (+1.11% on Oct 23)</strong>, and sovereign bullion hedge <strong class="text-white">Tata Gold ETF (TATAGOLD)</strong>.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-purple-400 mono">4. DOMESTIC FINANCIALIZATION, PRIVATE CREDIT &amp; AI CLOUD</span>
+              <span class="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 text-[10px] mono">₹4.16L CR DII SIP INFLOWS</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed"><strong>Economic Channel:</strong> Record domestic institutional inflows (+₹98,921.9 Cr DII cash buying over 30 days) and enterprise cloud adoption are anchoring Indian capital markets against FPI rate volatility.<br><strong>Watchlist Beneficiaries:</strong> Verified by <strong class="text-white">Jio Platforms IPO's 70.55x QIB subscription (22.19x total)</strong>, <strong class="text-white">₹6,500 Cr October FPI buying in Indian IT (TNIDETF)</strong>, <strong class="text-white">Tata Capital (TATACAP)</strong>, and <strong class="text-white">EAAA India Alternatives IPO</strong> (27% ROCE).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lawful Public Insider, SAST, Promoter Pledge & Institutional Ownership Radar -->
+      <div class="glass-card rounded-xl p-5">
+        <h3 class="text-base font-bold text-white mb-1">Lawful Public Insider, SEBI SAST, Promoter Pledge &amp; Institutional Ownership Audit (Q2 FY27 Filings)</h3>
+        <p class="text-xs text-slate-400 mb-3">Uses strictly lawful public exchange disclosures (SEBI SAST, quarterly shareholding patterns, promoter encumbrance filings, and bulk/block deal logs with reporting lags) — never unlawful non-public tips.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-900/60">
+                <th class="py-2.5 px-3">Watchlist Equity</th>
+                <th class="py-2.5 px-2">Promoter Holding &amp; Pledge %</th>
+                <th class="py-2.5 px-2">FII / DII Quarterly Shift (Sep 2026 Qtr)</th>
+                <th class="py-2.5 px-3">Public Governance, OFS &amp; Balance-Sheet Quality Audit</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70">
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Coal India (`COALINDIA`)</td>
+                <td class="py-2.5 px-2 mono text-emerald-400">63.13% GoI | 0.00% Pledge</td>
+                <td class="py-2.5 px-2 text-slate-300">High DII Mutual Fund &amp; Insurance core holding</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>Clean Sovereign Governance:</strong> 35% ROCE, net-cash balance sheet, consistent 6.67% dividend payout.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">BHEL (`BHEL`)</td>
+                <td class="py-2.5 px-2 mono text-emerald-400">63.17% GoI | 0.00% Pledge</td>
+                <td class="py-2.5 px-2 text-slate-300">DII Infrastructure &amp; PSU Funds accumulating</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>Order-Book Turnaround:</strong> Zero promoter pledge; monitor quarterly state-utility receivable collection efficiency.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Hindustan Zinc (`HINDZINC`)</td>
+                <td class="py-2.5 px-2 mono text-amber-400">63.42% Vedanta + 27.92% GoI (Pledge/Encumbrance Watch)</td>
+                <td class="py-2.5 px-2 text-slate-300">Low free float (~8.6%); DII/Retail absorption</td>
+                <td class="py-2.5 px-3 text-amber-300"><strong>Promoter Leverage Watch:</strong> Operating business is debt-light &amp; world-class (10.07x P/E), but parent Vedanta Ltd's debt servicing drives periodic OFS supply and high dividend upstreaming.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Samvardhana Motherson (`MOTHERSON`)</td>
+                <td class="py-2.5 px-2 mono text-emerald-400">~49.1% Promoter | Low Pledge</td>
+                <td class="py-2.5 px-2 text-slate-300">Strong DII Mutual Fund accumulation on dips</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>Disciplined Global M&amp;A:</strong> Track record of accretive distressed auto/aerospace/EMS acquisitions while keeping Net Debt/EBITDA within comfort bands.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Tata Capital (`TATACAP`)</td>
+                <td class="py-2.5 px-2 mono text-emerald-400">Tata Sons Parentage | 0.00% Pledge</td>
+                <td class="py-2.5 px-2 text-slate-300">Post-IPO institutional base stabilizing near ₹300</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>Tier-1 NBFC Governance:</strong> AAA credit profile, conservative provisioning, zero promoter encumbrance.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Morepen Labs (`MOREPENLAB`)</td>
+                <td class="py-2.5 px-2 mono text-emerald-400">~35.8% Promoter | 0.00% Pledge</td>
+                <td class="py-2.5 px-2 text-slate-300">Rising QIB/FPI participation after FY25–26 QIP</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>Balance Sheet Repaired:</strong> Reserves expanded from ₹786.8 Cr to ₹1,133.2 Cr; debt-light API &amp; medical-devices growth.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-white">Hindustan Copper (`HINDCOPPER`)</td>
+                <td class="py-2.5 px-2 mono text-emerald-400">66.14% GoI | 0.00% Pledge</td>
+                <td class="py-2.5 px-2 text-slate-300">High retail/F&amp;O beta; LIC &amp; DIIs hold core stake</td>
+                <td class="py-2.5 px-3 text-slate-300"><strong>Sovereign Mining Monopoly:</strong> Zero pledge, but requires long-cycle underground mine capex execution.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Interactive Options Delta-Gamma BSM Calculator & Immediate Profit-Harvesting Process -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-xl p-5 border border-purple-500/30">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm sm:text-base font-bold text-white">Interactive Black-Scholes-Merton (BSM) Options Delta-Gamma &amp; Expected Move Calculator</h3>
+            <span class="px-2 py-0.5 text-[10px] rounded bg-purple-500/20 text-purple-300 mono">MODEL GREEKS</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Compute theoretical ATM Call/Put Delta ($\Delta$), Gamma ($\Gamma$), Theta ($\Theta$), Vega ($
+u$), and 1-SD Daily/Expiry Expected Move for Nifty 50 or Bank Nifty.</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3 text-xs">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Spot Price ($S$)</label>
+              <input id="bsm-spot" type="number" step="10" value="22600" class="w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-white mono">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Strike ($K$)</label>
+              <input id="bsm-strike" type="number" step="50" value="22600" class="w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-white mono">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Implied Vol / VIX (%)</label>
+              <input id="bsm-vol" type="number" step="0.1" value="15.81" class="w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-white mono">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Days to Expiry ($D$)</label>
+              <input id="bsm-days" type="number" step="1" value="4" class="w-full px-2.5 py-1.5 rounded bg-slate-900 border border-slate-700 text-white mono">
+            </div>
+          </div>
+          <button id="btn-calc-bsm" class="w-full py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition mb-3">
+            Calculate BSM Greeks &amp; Expected Move Range
+          </button>
+          <div id="bsm-results" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs mono"></div>
+        </div>
+
+        <div class="glass-card rounded-xl p-5 border border-emerald-500/30 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm sm:text-base font-bold text-white">5-Step Institutional Value-Harvesting Process (CA / CFA Discipline)</h3>
+            <span class="px-2 py-0.5 text-[10px] rounded bg-emerald-500/20 text-emerald-300 mono">RISK-FIRST PROTOCOL</span>
+          </div>
+          <ul class="space-y-2 text-xs text-slate-300">
+            <li><strong class="text-emerald-400">Step 1 — Separate Price Fall from Fundamental Value:</strong> A 3%–5% daily drop or a ₹10–₹50 share price is an alert, never automatic value. Verify TTM P/E, ROCE (&gt;15%), and CFO/EBITDA (&gt;70%) first (e.g., <strong class="text-white">HINDZINC at 10.07x P/E</strong> and <strong class="text-white">COALINDIA at 7.85x P/E</strong> pass; <strong class="text-rose-400">MONQ50 at +89.5% over iNAV</strong> fails).</li>
+            <li><strong class="text-emerald-400">Step 2 — Check ETF iNAV &amp; Mutual Fund Cut-Offs Before Ordering:</strong> Never place market orders on international ETFs at 9:15 AM IST. Check live AMC iNAV (`miraeassetetf.co.in` / `motilaloswalmf.com/inav`) and bid within ≤1.5% of iNAV. Remember MFs execute at EOD NAV (3:00 PM IST cut-off).</li>
+            <li><strong class="text-emerald-400">Step 3 — Eliminate Hidden Portfolio Overlap:</strong> Cap combined exposure across overlapping US tech funds (`MAFANG`, `MASPTOP50`, `MON100`, `INV-GCT`) so a single Nasdaq drawdown doesn't hit four line items simultaneously.</li>
+            <li><strong class="text-emerald-400">Step 4 — Stage Limit Tranches at Calculated Gamma/MA Support:</strong> Deploy capital in staggered tranches near 50-DMA/200-DMA or major Put OI walls (`Nifty 22,500–22,524 S1`) rather than chasing gap-ups.</li>
+            <li><strong class="text-emerald-400">Step 5 — Respect Hard Thesis-Invalidation Triggers:</strong> Every position has a pre-defined fundamental and technical invalidation level. Never use leveraged F&amp;O recovery trades to average down a broken thesis.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const BASE_ASSETS = [
+      {
+        id: 1,
+        ticker: "BHEL", isin: "INE257A01026", url: "https://www.screener.in/company/BHEL/consolidated/",
+        name: "Bharat Heavy Electricals Ltd",
+        type: "EQUITY", retType: "PR", obsDate: "2026-10-23",
+        price: 385.35, prevClose: 398.90, unit: "₹",
+        chg1d: -3.40, low1dPct: -5.31, low1dPrice: 377.70,
+        ret1m: -11.09, ret3m: -6.76, ret6m: 15.86, ret1y: 64.48,
+        sep26: 4.82, cal3m: 4.85, octMtd: -14.75,
+        high52w: 464.00, low52w: 229.54, dd52w: -16.95, maxDd12m: -18.61,
+        worstDay: "-3.40% Close / -5.31% Low (2026-10-23)",
+        pe: "P/E 46.64x | P/B 5.16x", mcap: "₹1,34,683 Cr",
+        trend: "Pullback in Uptrend | >200-DMA (₹358), <50-DMA (₹392) | RS +77.5%",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "₹375 – ₹386 (Conditional)", target12m: "₹465–₹475", stopLoss: "Weekly Close < ₹358",
+        fundamentals: "TTM Revenue ₹37,782 Cr, Net Profit ₹2,879 Cr, EPS ₹8.26, P/E 46.64x, Dividend Yield 0.36%. Monopoly beneficiary of India's 80+ GW thermal baseload & HVDC transmission backlog; state-utility receivable days remain the key cash-conversion watch item.",
+        institutional: "63.17% GoI PSU; DII infrastructure funds hold core positions. Friday's -3.40% close (-5.31% intraday low at ₹377.70 on 1.46 Cr volume) flushed leveraged F&O longs into structural support.",
+        tradingVsInv: "Trading (1–10D): Wait for reclaim of ₹392 (50-DMA). Investment (6–36M): Staggered accumulation in the ₹375–₹386 support band ahead of Q2 FY27 operating leverage.",
+        counterThesis: "Counter-Thesis: State discom receivable delays or raw-material steel/copper cost overruns without pass-through. Invalidation: Weekly close below ₹358 (200-DMA)."
+      },
+      {
+        id: 2,
+        ticker: "COALINDIA", isin: "INE522F01014", url: "https://www.screener.in/company/COALINDIA/consolidated/",
+        name: "Coal India Limited",
+        type: "EQUITY", retType: "PR (+7.9% TR)", obsDate: "2026-10-23",
+        price: 397.45, prevClose: 402.55, unit: "₹",
+        chg1d: -1.27, low1dPct: -2.96, low1dPrice: 390.65,
+        ret1m: -4.16, ret3m: -7.22, ret6m: -10.51, ret1y: 1.22,
+        sep26: -2.80, cal3m: -3.95, octMtd: -3.40,
+        high52w: 491.25, low52w: 369.60, dd52w: -19.10, maxDd12m: -24.76,
+        worstDay: "-2.44% Close (2026-10-22)",
+        pe: "P/E 7.85x | Div 6.67%", mcap: "₹2,45,061 Cr",
+        trend: "Value Base | <50/200-DMA | 1Y RS +14.2% PR (+20.9% TR)",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "₹388 – ₹398 (≤8.0x P/E)", target12m: "₹455–₹465 + 6.67% Div", stopLoss: "Weekly Close < ₹365",
+        fundamentals: "Rock-bottom 7.85x TTM P/E, EPS ₹50.62, Book Value ₹193 (P/B 2.06x), ROCE 35.0%, and 6.67% cash dividend yield. Net-cash balance sheet funding pithead thermal JVs.",
+        institutional: "63.13% GoI PSU; heavy DII dividend-yield floor near ₹388–₹395. Brent crude at $115.76/bbl increases industrial substitution demand and e-auction coal premiums.",
+        tradingVsInv: "Trading: Rangebound between ₹388 and ₹408. Investment: High-margin-of-safety value & cash-yield anchor in the ₹388–₹398 zone.",
+        counterThesis: "Counter-Thesis: E-auction price cooling or wage/royalty hikes compressing EBITDA below ₹42,000 Cr. Invalidation: Weekly close below ₹365."
+      },
+      {
+        id: 3,
+        ticker: "HINDCOPPER", isin: "INE531E01026", url: "https://economictimes.indiatimes.com/hindustan-copper-ltd/stocks/companyid-11733.cms",
+        name: "Hindustan Copper Ltd",
+        type: "EQUITY", retType: "PR", obsDate: "2026-10-23",
+        price: 398.90, prevClose: 412.55, unit: "₹",
+        chg1d: -3.31, low1dPct: -4.91, low1dPrice: 392.30,
+        ret1m: -20.85, ret3m: -19.00, ret6m: -27.72, ret1y: 20.64,
+        sep26: 3.60, cal3m: 2.34, octMtd: -21.40,
+        high52w: 760.05, low52w: 308.50, dd52w: -47.52, maxDd12m: -48.38,
+        worstDay: "-3.31% Close / -4.91% Low (2026-10-23)",
+        pe: "P/E 33.92x | Div 0.72%", mcap: "₹38,604 Cr",
+        trend: "Deep Cyclical Pullback (-47.5% off 52W H) | High Beta",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "₹380 – ₹395 (Staggered)", target12m: "₹490–₹520", stopLoss: "Weekly Close < ₹355",
+        fundamentals: "India's sole vertically integrated copper miner; P/E 33.92x, EPS ₹11.76. Normalised earnings depend on Malanjkhand underground mine expansion timelines.",
+        institutional: "Corrected -47.52% from its ₹760.05 frenzy high and -3.31% on Oct 23 (low ₹392.30) as LME/COMEX copper pulled back -2.53% to $6.38/lb (~$14,065/t).",
+        tradingVsInv: "Trading: Bearish short-term momentum below ₹415; avoid catching falling knives. Investment: Wait for base stabilisation in the ₹380–₹395 band (~32x P/E).",
+        counterThesis: "Counter-Thesis: Underground mine capex delays or global industrial slowdown pushing copper <$5.80/lb. Invalidation: Weekly close below ₹355."
+      },
+      {
+        id: 4,
+        ticker: "MAFANG", isin: "INF769K01HF4", url: "https://groww.in/etfs/mirae-asset-nyse-fang-etf",
+        name: "Mirae Asset NYSE FANG+ ETF",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 246.90, prevClose: 259.55, unit: "₹",
+        chg1d: -4.87, low1dPct: -8.94, low1dPrice: 236.35,
+        ret1m: 1.45, ret3m: 26.76, ret6m: 40.94, ret1y: 45.76,
+        sep26: 11.20, cal3m: 24.95, octMtd: -1.15,
+        high52w: 307.49, low52w: 149.74, dd52w: -19.70, maxDd12m: -23.14,
+        worstDay: "-4.87% Close / -8.94% Low (2026-10-23)",
+        pe: "TER ~0.65% | Check iNAV", mcap: "NSE Vol: 15.29L",
+        trend: "Structural Uptrend | -4.87% 1D Pullback | RS +58.7%",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "≤1.5% of Live Mirae iNAV", target12m: "Track NYSE FANG+ & INR", stopLoss: "Avoid if Premium > 3%",
+        fundamentals: "Equal-weight basket of 10 US AI/cloud megacaps (Nvidia, Microsoft, Meta, Alphabet, Amazon, Apple, Broadcom, Netflix, ServiceNow, CrowdStrike).",
+        institutional: "Fell -4.87% on Oct 23 (morning panic low ₹236.35, -8.94%) after Thursday's -2.60% US Nasdaq drop. Overlaps >60% with `MON100`, `MASPTOP50`, and `INV-GCT`.",
+        tradingVsInv: "Trading: Avoid market orders at 9:15 AM when spreads widen. Investment: Accumulate only via limit orders within 1.5% of live Mirae Asset iNAV.",
+        counterThesis: "Counter-Thesis: US AI capex deceleration (CoreWeave bond rout) or RBI overseas limit premium compression. Invalidation: Buying >3% above live iNAV."
+      },
+      {
+        id: 5,
+        ticker: "MASPTOP50", isin: "INF769K01HP3", url: "https://groww.in/etfs/mirae-asset-sp-top-etf-masptop",
+        name: "Mirae Asset S&P 500 Top 50 ETF",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 97.15, prevClose: 102.21, unit: "₹",
+        chg1d: -4.95, low1dPct: -6.56, low1dPrice: 95.50,
+        ret1m: -14.22, ret3m: 23.38, ret6m: 29.53, ret1y: 41.54,
+        sep26: 18.40, cal3m: 43.83, octMtd: -13.90,
+        high52w: 148.90, low52w: 65.00, dd52w: -34.75, maxDd12m: -35.86,
+        worstDay: "-4.95% Close / -6.56% Low (2026-10-23)",
+        pe: "TER ~0.60% | Check iNAV", mcap: "NSE Vol: 9.80L",
+        trend: "1Y/6M/3M Uptrend | -14.2% 1M Premium Reset",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "≤1.5% of Live Mirae iNAV", target12m: "Track S&P 500 Top 50", stopLoss: "Avoid if Premium > 3%",
+        fundamentals: "Tracks the 50 largest S&P 500 blue-chips across US tech, financials, and healthcare. Verified ticker for user input `MASTOP50`.",
+        institutional: "Dropped -4.95% on Oct 23 (intraday low ₹95.50, -6.56%) and -14.22% over 1 month as NSE secondary-market scarcity premium deflated toward iNAV.",
+        tradingVsInv: "Trading: Wait for iNAV premium stabilization. Investment: Consolidate US mega-cap exposure rather than duplicating across 4 overlapping funds.",
+        counterThesis: "Counter-Thesis: Further NSE secondary-market premium contraction even if S&P 500 stays flat. Invalidation: Paying >3% over live iNAV."
+      },
+      {
+        id: 6,
+        ticker: "MONQ50", isin: "INF247L01AU3", url: "https://www.google.com/finance/quote/MONQ50:NSE",
+        name: "Motilal Oswal Nasdaq Q 50 ETF",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 221.50, prevClose: 222.37, unit: "₹",
+        chg1d: -0.39, low1dPct: -14.75, low1dPrice: 189.56,
+        ret1m: -30.14, ret3m: 57.73, ret6m: 77.47, ret1y: 120.05,
+        sep26: 45.00, cal3m: 125.76, octMtd: -28.40,
+        high52w: 471.99, low52w: 92.01, dd52w: -53.07, maxDd12m: -59.84,
+        worstDay: "-14.75% Intraday Crash (2026-10-23)",
+        pe: "iNAV ₹116.90 (+89.5% Prem!)", mcap: "NSE Vol: 8.24L",
+        trend: "Severe iNAV Premium Distortion (-53.1% off 52W H)",
+        verdict: "AVOID", verdictColor: "rose",
+        buyZone: "Do Not Buy Above iNAV (~₹117)", target12m: "Severe Mean-Reversion Risk", stopLoss: "Immediate Exit on Premium",
+        fundamentals: "Tracks mid-cap NASDAQ Q-50 Index, but NSE secondary price (₹221.50) trades ~89.5% above official Motilal Oswal iNAV (₹116.90) due to RBI overseas cap freeze.",
+        institutional: "Motilal Oswal AMC publicly warned investors against buying MONQ50 at inflated secondary prices. Crashed -14.75% intraday to ₹189.56 at 10:05 AM on Oct 23.",
+        tradingVsInv: "Both Trading & Investment: STRICTLY AVOID. A -30% 1-month drop or -53% drop from ₹471.99 is premium deflation, NOT fundamental value.",
+        counterThesis: "Counter-Thesis: Retail speculation can cause brief dead-cat bounces, but underlying NAV is ~47% lower than market price."
+      },
+      {
+        id: 7,
+        ticker: "MON100", isin: "INF247L01AP3", url: "https://groww.in/etfs/motilal-oswal-mutual-fundmotilal-oswal-most-shares-nasdaq-etf",
+        name: "Motilal Oswal Nasdaq 100 ETF",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 289.90, prevClose: 299.41, unit: "₹",
+        chg1d: -3.18, low1dPct: -7.49, low1dPrice: 276.99,
+        ret1m: -12.22, ret3m: -10.19, ret6m: 0.24, ret1y: 20.56,
+        sep26: 1.80, cal3m: 2.30, octMtd: -11.80,
+        high52w: 354.90, low52w: 213.01, dd52w: -18.31, maxDd12m: -21.95,
+        worstDay: "-3.18% Close / -7.49% Low (2026-10-23)",
+        pe: "iNAV ₹273.52 (+6.0% Prem)", mcap: "NSE Vol: 21.43L",
+        trend: "1Y Uptrend | Premium Cooling Toward ₹273.52 iNAV",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "Limit Bids Strictly ≤ ₹274", target12m: "Track Nasdaq-100 & INR", stopLoss: "Avoid Paying >3% Over iNAV",
+        fundamentals: "India's flagship Nasdaq-100 ETF (+20.56% 1Y), TER ~0.58%, high daily liquidity (21.43L units).",
+        institutional: "Closed at ₹289.90 (-3.18%) on Oct 23 after dipping -7.49% intraday to ₹276.99 at 9:45 AM—briefly coming within 1.3% of its ₹273.52 official iNAV.",
+        tradingVsInv: "Trading: Do not buy at ₹289.90 (+6% premium). Investment: Place resting limit bids at ≤₹274 to capture morning liquidity sweeps near true iNAV.",
+        counterThesis: "Counter-Thesis: If RBI lifts the $1B overseas ETF cap, the 6% premium will vanish overnight."
+      },
+      {
+        id: 8,
+        ticker: "MOREPENLAB", isin: "INE083A01026", url: "https://www.screener.in/company/MOREPENLAB/consolidated/",
+        name: "Morepen Laboratories Ltd",
+        type: "EQUITY", retType: "PR", obsDate: "2026-10-23",
+        price: 123.55, prevClose: 117.67, unit: "₹",
+        chg1d: 5.00, low1dPct: -3.97, low1dPrice: 113.00,
+        ret1m: 0.98, ret3m: 117.44, ret6m: 195.57, ret1y: 151.94,
+        sep26: 38.50, cal3m: 115.33, octMtd: -4.20,
+        high52w: 150.70, low52w: 33.05, dd52w: -18.02, maxDd12m: -26.87,
+        worstDay: "-5.13% Close (2026-10-09)",
+        pe: "P/E 48.19x | EPS ₹2.56", mcap: "₹6,737 Cr",
+        trend: "Structural Multi-Bagger (+5.00% UC) | #1 RS (+164.9%)",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "₹108 – ₹115 on Pullbacks", target12m: "₹145–₹150", stopLoss: "Weekly Close < ₹99",
+        fundamentals: "API exporter (Loratadine, Montelukast, Atorvastatin) & point-of-care diagnostics leader. Reserves grew from ₹786.8 Cr (FY24) to ₹1,133.2 Cr (FY26); P/E is now full at 48.19x.",
+        institutional: "Swept -3.97% to ₹113.00 at 10:55 AM on Oct 23 (filling our ₹108–₹115 buy zone) before surging +9.3% off the low to lock at +5.00% upper circuit (₹123.55) on 50.6L volume.",
+        tradingVsInv: "Trading: Trail stops at ₹114 on existing positions. Investment: Hold existing shares; do not chase at 48.2x P/E—add only on pullbacks to ₹108–₹115.",
+        counterThesis: "Counter-Thesis: Chinese API pricing competition or valuation mean reversion after a +195.6% 6M run. Invalidation: Weekly close < ₹99."
+      },
+      {
+        id: 9,
+        ticker: "MOTHERSON", isin: "INE775A01035", url: "https://www.screener.in/company/MOTHERSON/consolidated/",
+        name: "Samvardhana Motherson International",
+        type: "EQUITY", retType: "PR", obsDate: "2026-10-23",
+        price: 151.67, prevClose: 154.64, unit: "₹",
+        chg1d: -1.92, low1dPct: -4.25, low1dPrice: 148.07,
+        ret1m: -6.90, ret3m: 4.44, ret6m: 21.63, ret1y: 41.34,
+        sep26: 5.40, cal3m: 12.18, octMtd: -6.50,
+        high52w: 173.27, low52w: 101.08, dd52w: -12.47, maxDd12m: -14.54,
+        worstDay: "-2.08% Close (2026-10-22) / -4.25% Low (2026-10-23)",
+        pe: "P/E 35.81x | P/B 3.91x", mcap: "₹1,02,368 Cr",
+        trend: "Pullback in Uptrend | Defended 50-DMA (₹148) | RS +54.3%",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "₹146 – ₹152", target12m: "₹180–₹185", stopLoss: "Weekly Close < ₹138",
+        fundamentals: "P/E 35.81x, EPS ₹4.24, Book Value ₹38.8. Global Tier-1 auto wiring/modules leader diversifying cash flows into high-ROCE aerospace and consumer electronics (EMS).",
+        institutional: "Tested ₹148.07 (-4.25% intraday low) at 1:25 PM on Oct 23 before institutional buying lifted it to ₹151.67 (-1.92% on 1.14 Cr volume).",
+        tradingVsInv: "Trading: Constructive hammer bounce off ₹148; resistance at ₹156. Investment: Accumulate in the ₹146–₹152 band for H2 FY27 non-auto EMS ramp.",
+        counterThesis: "Counter-Thesis: European automotive production recession or acquisition integration debt (>2.0x Net Debt/EBITDA). Invalidation: Weekly close < ₹138."
+      },
+      {
+        id: 10,
+        ticker: "TATACAP", isin: "INE306N01018", url: "https://www.screener.in/company/TATACAP/consolidated/",
+        name: "Tata Capital Ltd",
+        type: "EQUITY", retType: "PR", obsDate: "2026-10-23",
+        price: 306.90, prevClose: 308.10, unit: "₹",
+        chg1d: -0.39, low1dPct: -2.06, low1dPrice: 301.75,
+        ret1m: -10.71, ret3m: -12.45, ret6m: -8.24, ret1y: -5.58,
+        sep26: -1.95, cal3m: -1.95, octMtd: -9.80,
+        high52w: 390.20, low52w: 296.00, dd52w: -21.35, maxDd12m: -24.14,
+        worstDay: "-3.28% Close (2026-10-14)",
+        pe: "P/E 24.08x | EPS ₹12.74", mcap: "₹1,29,342 Cr",
+        trend: "Corrective Base | 3.7% Above ₹296 52W Low | Outperforming Banks",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "₹296 – ₹307", target12m: "₹360–₹368", stopLoss: "Weekly Close < ₹284",
+        fundamentals: "Verified symbol `NSE: TATACAP`. P/E compressed to 24.08x (EPS ₹12.74) with AAA Tata Sons parentage and granular retail/SME book.",
+        institutional: "Demonstrated strong relative resilience on Oct 23, closing nearly flat (-0.39% at ₹306.90) while Bank Nifty fell -1.16% and Shriram Finance dropped -3.98%.",
+        tradingVsInv: "Trading: Support at ₹296–₹301, resistance at ₹314. Investment: Contrarian value accumulation at ₹296–₹307 near 52-week valuation floor.",
+        counterThesis: "Counter-Thesis: Higher-for-longer wholesale borrowing costs due to $115.76 crude or GNPA >2.0%. Invalidation: Weekly close < ₹284."
+      },
+      {
+        id: 11,
+        ticker: "TNIETF / TNIDETF", isin: "INF277KA1364", url: "https://groww.in/etfs/tata-nifty-india-digital-exchange-traded-fund-tnidetf",
+        name: "Unresolved 'TNIETF' (Ref: Tata Nifty India Digital ETF)",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 86.90, prevClose: 87.77, unit: "₹",
+        chg1d: -0.99, low1dPct: -2.64, low1dPrice: 85.45,
+        ret1m: -2.11, ret3m: 2.22, ret6m: 3.46, ret1y: -9.73,
+        sep26: 2.10, cal3m: 4.42, octMtd: -1.85,
+        high52w: 103.26, low52w: 74.50, dd52w: -15.84, maxDd12m: -27.85,
+        worstDay: "-2.64% Intraday Low (2026-10-23)",
+        pe: "TER ~0.40% | iNAV Parity", mcap: "NSE Vol: 0.99L",
+        trend: "Base Recovery | IT (-0.27%) Most Resilient Sector on Oct 23",
+        verdict: "DATA INSUFFICIENT", verdictColor: "amber",
+        buyZone: "₹84 – ₹87 (For TNIDETF)", target12m: "₹100–₹102", stopLoss: "Weekly Close < ₹79",
+        fundamentals: "Literal string `TNIETF` is unresolved (not assumed to be a Taiwan ETF). Closest verified Indian ETF is `NSE: TNIDETF` (Tata Nifty India Digital ETF, ISIN INF277KA1364).",
+        institutional: "Indian IT received ~₹6,500 Cr of FPI inflows in October 2026 and was Friday's most resilient sector (-0.27%), while digital constituent Eternal rose +4.25%.",
+        tradingVsInv: "Trading: Use limit orders (99,391 units traded Friday). Investment: For `TNIDETF`, gradual SIP at ₹84–₹87 as a USD-earner hedge against INR at 94.94.",
+        counterThesis: "Counter-Thesis: US enterprise tech budget cuts. Invalidation: Weekly close below ₹79."
+      },
+      {
+        id: 12,
+        ticker: "TATAGOLD", isin: "INF277KA1976", url: "https://www.nseindia.com/market-data/exchange-traded-funds-etf",
+        name: "Tata Gold Exchange Traded Fund",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 13.66, prevClose: 13.81, unit: "₹",
+        chg1d: -1.09, low1dPct: -1.88, low1dPrice: 13.55,
+        ret1m: -7.45, ret3m: -1.23, ret6m: -7.01, ret1y: 14.41,
+        sep26: 4.20, cal3m: 6.72, octMtd: -6.90,
+        high52w: 17.70, low52w: 10.33, dd52w: -22.82, maxDd12m: -23.45,
+        worstDay: "-1.09% Close / -1.88% Low (2026-10-23)",
+        pe: "TER ~0.38% | NAV ₹13.82", mcap: "NSE Vol: 5.06 Cr",
+        trend: "1Y Bull Uptrend (+14.4%) | 1M Pullback (-7.5%)",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "₹13.40 – ₹13.70", target12m: "₹15.80–₹16.20", stopLoss: "Spot Gold < $3,850/oz",
+        fundamentals: "Verified symbol `NSE: TATAGOLD` (`INF277KA1976`). Backed by 99.5% physical gold bullion; trades at parity with domestic bullion NAV (₹13.82 on Oct 22).",
+        institutional: "Ultra-liquid (5.06 Cr units traded Friday; ₹0.01 bid-ask spread). MCX Gold settled at ₹1,41,907–₹1,42,150/10g and COMEX Gold at $4,015–$4,028/oz.",
+        tradingVsInv: "Trading: Low-beta support at ₹13.45–₹13.55. Investment: Essential portfolio hedge against Strait of Hormuz geopolitical risk and INR depreciation.",
+        counterThesis: "Counter-Thesis: Spike in US real Treasury yields (>2.5% TIPS). Invalidation: Spot gold breaking below $3,850/oz."
+      },
+      {
+        id: 13,
+        ticker: "Silveretf / TATSILV", isin: "INF277KA1984", url: "https://adityatrading.in/stocks/tatsilv/",
+        name: "Ambiguous 'Silveretf' (Ref: Tata Silver ETF & SILVERBEES)",
+        type: "ETF", retType: "PR", obsDate: "2026-10-23",
+        price: 18.72, prevClose: 19.31, unit: "₹",
+        chg1d: -3.06, low1dPct: -4.82, low1dPrice: 18.38,
+        ret1m: -16.98, ret3m: -13.17, ret6m: -22.32, ret1y: 30.09,
+        sep26: 2.80, cal3m: 4.59, octMtd: -16.50,
+        high52w: 35.10, low52w: 13.50, dd52w: -46.67, maxDd12m: -47.64,
+        worstDay: "-3.06% Close / -4.82% Low (2026-10-23)",
+        pe: "TER 0.44% | NAV ₹19.39", mcap: "NSE Vol: 5.68 Cr",
+        trend: "1Y Bullish (+30.1%) | -46.7% Off 52W High | Oversold",
+        verdict: "DATA INSUFFICIENT", verdictColor: "amber",
+        buyZone: "₹18.30 – ₹18.80 (TATSILV)", target12m: "₹24.50–₹25.50", stopLoss: "Weekly Close < ₹17.10",
+        fundamentals: "Flagged `DATA INSUFFICIENT` only on AMC ambiguity (`TATSILV` INF277KA1984 vs `SILVERBEES` INF204KB17I5). Both hold 99.9% physical silver bullion.",
+        institutional: "5.68 Cr units traded in `TATSILV` on Friday (low ₹18.38). Gold/Silver ratio (~74.5x) sits >+2 standard deviations above its 60-day mean after COMEX silver's -5.7% weekly drop to $54.40/oz.",
+        tradingVsInv: "Trading: Oversold mean-reversion candidate off ₹18.38. Investment: Staggered accumulation at ₹18.30–₹18.80 (`TATSILV`) on structural solar PV/EV silver deficits.",
+        counterThesis: "Counter-Thesis: Global industrial manufacturing recession. Invalidation: Weekly close below ₹17.10 (`TATSILV`)."
+      },
+      {
+        id: 14,
+        ticker: "HINDZINC", isin: "INE267A01025", url: "https://www.screener.in/company/HINDZINC/",
+        name: "Hindustan Zinc Ltd",
+        type: "EQUITY", retType: "PR", obsDate: "2026-10-23",
+        price: 496.00, prevClose: 518.00, unit: "₹",
+        chg1d: -4.25, low1dPct: -5.02, low1dPrice: 492.00,
+        ret1m: -16.19, ret3m: -7.36, ret6m: -17.98, ret1y: 2.87,
+        sep26: 6.80, cal3m: 10.53, octMtd: -15.80,
+        high52w: 733.00, low52w: 453.50, dd52w: -32.33, maxDd12m: -38.13,
+        worstDay: "-4.25% Close / -5.02% Low (2026-10-23)",
+        pe: "P/E 10.07x | Div 2.22%", mcap: "₹2,09,975 Cr",
+        trend: "Corrective Value Base (-32.3% off 52W H) | 10.07x P/E",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "₹485 – ₹500", target12m: "₹610–₹625", stopLoss: "Weekly Close < ₹453.50",
+        fundamentals: "TTM Revenue ₹53,058 Cr, Net Profit ₹20,618 Cr, EPS ₹49.26, P/E compressed to 10.07x! First-decile global zinc cost producer and top-5 global silver producer.",
+        institutional: "Fell -4.25% on Oct 23 (low ₹492.00, -5.02% on 44.7L volume) alongside Nifty Metal (-2.71%). Governance watch item: promoter Vedanta Ltd debt-servicing & periodic OFS supply.",
+        tradingVsInv: "Trading: Oversold near ₹490–₹496 support. Investment: High-conviction value accumulation at 10.07x P/E in the ₹485–₹500 zone ahead of Q2 FY27 earnings.",
+        counterThesis: "Counter-Thesis: Promoter OFS supply overhang or sustained LME zinc/silver slump. Invalidation: Weekly close below ₹453.50 (52W low)."
+      },
+      {
+        id: 15,
+        ticker: "QUANT-SC", isin: "INF966L01689", url: "https://groww.in/mutual-funds/quant-small-cap-fund-direct-plan-growth",
+        name: "Quant Small Cap Fund (Direct–Growth)",
+        type: "MF", retType: "TR (EOD NAV)", obsDate: "2026-10-23",
+        price: 295.26, prevClose: 302.46, unit: "₹ NAV",
+        chg1d: -2.38, low1dPct: -2.38, low1dPrice: 295.26,
+        ret1m: -4.83, ret3m: -3.15, ret6m: 16.35, ret1y: 11.09,
+        sep26: 2.40, cal3m: 1.65, octMtd: -4.50,
+        high52w: 322.50, low52w: 258.40, dd52w: -8.45, maxDd12m: -9.80,
+        worstDay: "-2.38% EOD NAV (2026-10-23)",
+        pe: "TER 0.90% | AUM ₹35,572 Cr", mcap: "1Y: +11.09% vs +6.75% Cat",
+        trend: "1Y/6M Outperformer | -8.5% Off 52W High | Open for SIP/Lumpsum",
+        verdict: "ACCUMULATE", verdictColor: "emerald",
+        buyZone: "SIP + Dip Top-Up (EOD NAV)", target12m: "3Y+ Horizon Compounder", stopLoss: "1% Exit Load < 1 Year",
+        fundamentals: "Direct–Growth research default (`INF966L01689`). Outperforms category across 1Y (+11.09% vs +6.75%), 3Y (+16.58% vs +13.19%), and 5Y (+17.13% vs +12.94%).",
+        institutional: "Holds 10.5% in TREPS cash plus liquid large-caps (Reliance, Jio Financial) alongside HFCL (6.1%) and RBL Bank (4.8%) to buffer small-cap liquidity drawdowns.",
+        tradingVsInv: "Not intraday tradable (3:00 PM IST cut-off). Continue core SIPs and deploy staggered lumpsum top-ups after Friday's -2.94% Nifty Smallcap 100 drop.",
+        counterThesis: "Counter-Thesis: High-turnover VLRT factor whipsaws during prolonged small-cap illiquidity."
+      },
+      {
+        id: 16,
+        ticker: "MO-MIDCAP", isin: "INF247L01445", url: "https://groww.in/mutual-funds/motilal-oswal-most-focused-midcap-30-fund-direct-growth",
+        name: "Motilal Oswal Midcap Fund (Direct–Growth)",
+        type: "MF", retType: "TR (EOD NAV)", obsDate: "2026-10-23",
+        price: 108.60, prevClose: 110.20, unit: "₹ NAV",
+        chg1d: -1.45, low1dPct: -1.45, low1dPrice: 108.60,
+        ret1m: -5.52, ret3m: -4.42, ret6m: 4.82, ret1y: -4.70,
+        sep26: 1.90, cal3m: 0.65, octMtd: -5.10,
+        high52w: 116.61, low52w: 98.40, dd52w: -6.87, maxDd12m: -8.90,
+        worstDay: "-1.77% EOD NAV (2026-10-22)",
+        pe: "TER 0.91% | AUM ₹40,208 Cr", mcap: "1Y: -4.70% vs +0.25% Cat",
+        trend: "1Y Corrective (-4.7%) | 3Y/5Y Leader (+17.1% / +18.6%)",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "Staggered Monthly SIP Only", target12m: "3Y+ Horizon", stopLoss: "1% Exit Load < 365 Days",
+        fundamentals: "Formerly *Motilal Oswal Most Focused Midcap 30 Fund* (`INF247L01445`). Concentrated ~25–30 stock QGLP growth portfolio (Coforge, Kalyan Jewellers, Persistent, Trent, Dixon).",
+        institutional: "1Y return (-4.70%) trails category (+0.25%) due to P/E compression in high-multiple momentum midcaps, though resilient IT holdings cushioned Friday's -2.21% Midcap drop.",
+        tradingVsInv: "Not intraday tradable. Avoid single lumpsums while mid-cap P/E multiples digest; use staggered monthly SIPs only.",
+        counterThesis: "Counter-Thesis: High top-10 concentration risk if growth multiples derate further."
+      },
+      {
+        id: 17,
+        ticker: "QUANT-MC", isin: "INF966L01887", url: "https://dhan.co/mutual-funds/quant-mid-cap-fund-direct-growth/",
+        name: "Quant Mid Cap Fund (Direct–Growth)",
+        type: "MF", retType: "TR (EOD NAV)", obsDate: "2026-10-23",
+        price: 228.79, prevClose: 233.70, unit: "₹ NAV",
+        chg1d: -2.10, low1dPct: -2.10, low1dPrice: 228.79,
+        ret1m: -4.31, ret3m: -6.85, ret6m: 2.42, ret1y: 0.91,
+        sep26: 0.80, cal3m: -2.80, octMtd: -4.10,
+        high52w: 256.80, low52w: 221.10, dd52w: -10.91, maxDd12m: -11.50,
+        worstDay: "-2.10% EOD NAV (2026-10-23)",
+        pe: "TER 1.15% | AUM ₹7,654 Cr", mcap: "1Y: +0.91% | 3Y: +9.52%",
+        trend: "Rangebound Consolidation (-10.9% off 52W H)",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "Weekly STP / SIP Only", target12m: "3Y+ Horizon", stopLoss: "0.50% Exit Load < 3 Mos",
+        fundamentals: "Direct–Growth (`INF966L01887`); TER 1.15%. Holds defensive TREPS cash, Aurobindo Pharma, Lloyds Metals. Co-manager Rushabh Patel added in October 2026.",
+        institutional: "1Y return (+0.91%) is slightly ahead of category (+0.25%), but 3Y (+9.52%) trails category (+13.23%). Shares ~18% overlap with Quant Small Cap's large-cap sleeve.",
+        tradingVsInv: "Not intraday tradable. Maintain existing SIP/STP; avoid overlapping lumpsums with Quant Small Cap.",
+        counterThesis: "Counter-Thesis: Higher 1.15% Direct TER and recent 3Y underperformance vs midcap peers."
+      },
+      {
+        id: 18,
+        ticker: "INV-GEI", isin: "INF205K01B49", url: "https://www.paytmmoney.com/mutual-funds/scheme/invesco-india-feeder-invesco-global-equity-income-fund-direct-growth/inf205k01b49",
+        name: "Invesco India – Invesco Global Equity Income FoF (Direct)",
+        type: "MF", retType: "TR (T+1 NAV)", obsDate: "2026-10-22",
+        price: 28.64, prevClose: 28.77, unit: "₹ NAV",
+        chg1d: -0.45, low1dPct: -0.45, low1dPrice: 28.64,
+        ret1m: 1.85, ret3m: -3.64, ret6m: 5.23, ret1y: 23.46,
+        sep26: 2.10, cal3m: -1.80, octMtd: 1.50,
+        high52w: 29.80, low52w: 22.90, dd52w: -3.89, maxDd12m: -5.20,
+        worstDay: "Unavailable (Partial NAV Log)",
+        pe: "Combined TER ~1.45%", mcap: "Fresh Buy SUSPENDED",
+        trend: "Structural Uptrend (+23.5% 1Y) | Subscriptions Blocked",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "Hold Existing (Fresh Buy Blocked)", target12m: "MSCI World Value", stopLoss: "1% Exit Load < 1 Year",
+        fundamentals: "Formerly *Invesco India Feeder – Invesco Global Equity Income Fund* (`INF205K01B49`). Feeds into Luxembourg-domiciled global dividend-growth compounders; low overlap with Nasdaq AI tech.",
+        institutional: "Combined cost is ~1.45% (Direct feeder ~0.65% + underlying ~0.80%). Fresh lumpsum and new SIP registrations are currently SUSPENDED due to RBI's $7B overseas limit.",
+        tradingVsInv: "Not intraday tradable (T+1 NAV). Hold existing units as a low-volatility global value anchor; cannot deploy new cash until AMC reopens subscriptions.",
+        counterThesis: "Counter-Thesis: Double-layer FoF expense ratio (~1.45%) and RBI overseas cap lock."
+      },
+      {
+        id: 19,
+        ticker: "INV-GCT", isin: "INF205K013U1", url: "https://www.policybazaar.com/mutual-funds/invesco-mutual-fund/invesco-india-invesco-global-consumer-trends-fof-direct-growth/",
+        name: "Invesco India – Invesco Global Consumer Trends FoF (Direct)",
+        type: "MF", retType: "TR (T+1 NAV)", obsDate: "2026-10-22",
+        price: 13.43, prevClose: 13.31, unit: "₹ NAV",
+        chg1d: 0.87, low1dPct: 0.87, low1dPrice: 13.43,
+        ret1m: 1.20, ret3m: 3.15, ret6m: 13.42, ret1y: -4.60,
+        sep26: 3.40, cal3m: 4.10, octMtd: 0.90,
+        high52w: 14.85, low52w: 11.40, dd52w: -9.56, maxDd12m: -23.23,
+        worstDay: "Unavailable (Partial NAV Log)",
+        pe: "Combined TER ~1.55%", mcap: "Fresh Buy SUSPENDED",
+        trend: "1Y Laggard (-4.6%) | +13.4% 6M Rebound | Subscriptions Blocked",
+        verdict: "WATCH", verdictColor: "blue",
+        buyZone: "Hold Existing (Fresh Buy Blocked)", target12m: "Global Consumer Tech", stopLoss: "1% Exit Load < 1 Year",
+        fundamentals: "Direct–Growth (`INF205K013U1`). Invests in global e-commerce, gaming, streaming & digital consumer leaders (Amazon, Netflix, Meta, Booking, MercadoLibre).",
+        institutional: "Combined feeder + underlying TER is ~1.55%. High overlap with `MAFANG` & `MON100`. Fresh lumpsum and new SIP registrations are SUSPENDED under RBI's $7B cap.",
+        tradingVsInv: "Not intraday tradable (T+1 NAV). Hold existing positions; avoid adding further consumer-tech overlap once subscriptions reopen.",
+        counterThesis: "Counter-Thesis: High combined fee (~1.55%), consumer discretionary slowdown, and tech overlap."
+      }
+    ];
+
+    const GLOBAL_INDICES = [
+      { name: "BSE SENSEX / NIFTY 50", status: "Completed (2026-10-23 15:30 IST)", level: "73,123.83 / 22,600.00", chg: "-0.17% / -0.39%", chain: "Event: Brent oil at $115.76 & weekly expiry positioning → Channel: Broad sector de-risking (Metal -2.71%, Midcap -2.21%, Smallcap -2.94%) → Exposure: Weighed on BHEL, HINDZINC, HINDCOPPER → Counterargument: FII (+₹887.65 Cr) & DII (+₹3,235.36 Cr) were simultaneous net cash buyers on Oct 23." },
+      { name: "US NASDAQ / S&P 500 / DOW", status: "Completed (2026-10-24 01:30 IST)", level: "25,955.34 / 7,623.68", chg: "-0.21% / -0.52% (Dow -1.2%)", chain: "Event: Oil >$114/bbl, US 10Y yield >5.1%, CoreWeave AI bond rout → Channel: Compresses tech valuation multiples (S&P fwd P/E ~19.2x) → Exposure: Pressures MAFANG, MASPTOP50, MON100 → Counterargument: Consensus Q3/2027 EPS growth (+16.5%) & USD/INR at 94.94 cushion INR NAVs." },
+      { name: "UK FTSE 100 / EUROPE DAX & CAC", status: "Completed (2026-10-23 Close)", level: "FTSE 10,651.68", chg: "-0.40% (DAX -0.4%, CAC -0.6%)", chain: "Event: Weak UK retail sales & European energy inflation → Channel: Auto & industrial margin compression → Exposure: Weighs on MOTHERSON EU OEM business → Counterargument: Offset by MOTHERSON aerospace/Apple EMS scaling & INV-GEI defensive dividend holdings." },
+      { name: "JAPAN NIKKEI / KOREA KOSPI", status: "Completed (2026-10-23 Close)", level: "Nikkei ~62,150", chg: "-1.20% (Kospi -40% off peak)", chain: "Event: BoJ warning on AI shock amplification & memory-chip volatility → Channel: Asian hardware risk-off → Exposure: Global tech ETFs → Counterargument: Prompts EM rotation toward Indian domestic cyclicals & IT services (+₹6,500 Cr Oct FII buying)." },
+      { name: "TAIWAN TAIEX / CHINA CSI 300", status: "Completed (2026-10-23 Close)", level: "TAIEX 46,041 / CSI 300", chg: "CSI +1.7% / HSI +0.7%", chain: "Event: US semiconductor export controls vs TSMC packaging dominance & China stimulus → Channel: Supply-chain bifurcation (China+1) → Exposure: Benefits Indian API (MOREPENLAB) & EMS (MOTHERSON) → Counterargument: Tactical China bounces briefly compete for EM flows." },
+      { name: "BRENT CRUDE & USD/INR", status: "Completed (2026-10-23)", level: "$115.76/bbl / ₹94.9430", chg: "+1.42% (+8.6% Wk) / +0.13%", chain: "Event: Houthi strikes on Saudi oil infrastructure & Strait of Hormuz risks → Channel: Imported inflation & INR depreciation → Exposure: Hurts rate-sensitive NBFCs (TATACAP) → Counterargument: Directly benefits thermal coal (COALINDIA), gold (TATAGOLD), and IT (TNIDETF)." },
+      { name: "GOLD, SILVER & LME COPPER", status: "Completed (2026-10-23)", level: "$4,028 | $54.40 | $6.38/lb", chg: "-3.9% Wk | -5.7% Wk | -2.53% 1D", chain: "Event: Weekly futures margin shakeout (Gold/Silver ratio stretched at 74.5x, +2 SD) → Channel: Short-term mining/bullion markdown → Exposure: HINDZINC, HINDCOPPER, TATSILV, TATAGOLD → Counterargument: Structural solar PV/grid deficits & central-bank bullion demand remain intact." }
+    ];
+
+    const IPOS = [
+      { name: "Jio Platforms Ltd (Mainboard)", window: "Closed Oct 23 (Lists Oct 28)", price: "₹1,065–₹1,119 (₹10,30,491 Cr)", metrics: "P/E 34.2x | ROCE 12%", sub: "22.19x Final (QIB 70.55x, NII 14.0x, Ret 2.72x)", verdict: "QUALIFIED (CLOSED): 70.55x QIB institutional demand validates valuation & cash conversion; separate long-term core holding from Day-1 listing speculation." },
+      { name: "EAAA India Alternatives (Mainboard)", window: "Opens Mon, Oct 26 – Oct 28", price: "₹1,585–₹1,665 (₹10,765 Cr MCap)", metrics: "P/E 39.4x | ROCE 27%", sub: "₹1,200 Cr Issue Opens Oct 26", verdict: "WATCH / CONDITIONAL: High 27% ROCE in private credit/alternatives, but predominantly OFS by Edelweiss group; require Day-2 QIB subscription >5x before bidding." },
+      { name: "SFC Environmental Tech (Mainboard)", window: "Opens Tue, Oct 27 – Oct 29", price: "TBA (₹3,233 Cr Implied MCap)", metrics: "P/E 20.9x | ROCE 24%", sub: "Opens Oct 27", verdict: "BEST VALUE MAINBOARD CANDIDATE: 20.9x P/E and 24% ROCE in wastewater engineering offer reasonable margin of safety; verify working-capital receivables & anchor book." },
+      { name: "BLS Polymers Ltd (Mainboard)", window: "Opens Tue, Oct 27 – Oct 29", price: "TBA (₹930 Cr Implied MCap)", metrics: "P/E 34.5x | ROCE 30%", sub: "Opens Oct 27", verdict: "WATCH: Strong 30% ROCE in cable compounds, but small ₹930 Cr MCap and $115.76/bbl crude feedstock volatility pose margin risks." },
+      { name: "Core4 Engineers Ltd (BSE-SME)", window: "Open Oct 23 – Oct 27 (Lists Oct 30)", price: "₹88–₹93 (₹192 Cr MCap)", metrics: "P/E 15.6x | ROCE 39%", sub: "0.08x Day 1 (Retail 0.14x, QIB 0.00x)", verdict: "WATCH (HIGH SME ILLIQUIDITY RISK): Low 15.6x P/E & 39% ROCE are offset by micro-cap SME lot-size illiquidity and weak 0.08x Day-1 demand." },
+      { name: "Paras Healthcare Ltd (Mainboard)", window: "Closed Oct 23 (Lists Oct 28)", price: "₹660–₹693 (₹7,498 Cr MCap)", metrics: "P/E 171.3x | ROCE 12%", sub: "2.34x Final (Retail 2.10x)", verdict: "AVOID: Stretched 171.3x P/E multiple relative to 12% ROCE offers no fundamental margin of safety." }
+    ];
+
+    const DEFAULT_CUSTOM_ASSETS = [
+      {
+        name: "ONGC Ltd (NSE: ONGC | INE213A01029)",
+        type: "LARGE / MID EQUITY",
+        price: 227.50, high52: 345.00, low52: 215.00,
+        d1: 1.11, m1: -6.40, m3: -12.50, m6: -15.20, y1: -18.00,
+        pe: 6.4, roce: 16.8, de: 0.42, inst: "PASS_INSTITUTIONAL",
+        notes: "Gained +1.11% on Oct 23 as Brent crude hit $115.76/bbl; 6.4x P/E upstream crude hedge. Entry: ₹220–228 | Stop: <₹209."
+      },
+      {
+        name: "Bharat Coking Coal (NSE: BHARATCOAL | INE0Q9R01018)",
+        type: "SPECULATIVE / PENNY CANDIDATE",
+        price: 30.85, high52: 46.80, low52: 26.10,
+        d1: -1.69, m1: -12.90, m3: -9.80, m6: 10.50, y1: 16.40,
+        pe: 13.9, roce: 19.5, de: 0.15, inst: "PASS_MODERATE",
+        notes: "Low nominal price (₹30.85) is NOT automatic value; Coal India coking-coal subsidiary, 0% pledge. WATCH: Entry ≤₹28–30 | Stop: <₹25.50."
+      },
+      {
+        name: "Nippon India Silver ETF (NSE: SILVERBEES | INF204KB17I5)",
+        type: "ETF",
+        price: 92.40, high52: 168.00, low52: 64.50,
+        d1: -3.10, m1: -16.80, m3: -13.00, m6: -22.10, y1: 30.20,
+        pe: 0.40, roce: 0.0, de: 0.0, inst: "PASS_INSTITUTIONAL",
+        notes: "Alternative AMC resolution for 'Silveretf' alongside TATSILV; high NSE liquidity, tracks physical silver at parity. Entry: ₹90–93 | Stop: <₹84."
+      }
+    ];
+
+    let ASSETS = JSON.parse(JSON.stringify(BASE_ASSETS));
+    let customAssets = [];
+    let liveSimActive = false;
+    let simInterval = null;
+
+    function loadCustomAssets() {
+      try {
+        const saved = localStorage.getItem("alphavault_custom_assets_v3");
+        if (saved) customAssets = JSON.parse(saved);
+        else customAssets = JSON.parse(JSON.stringify(DEFAULT_CUSTOM_ASSETS));
+      } catch (e) {
+        customAssets = JSON.parse(JSON.stringify(DEFAULT_CUSTOM_ASSETS));
+      }
+    }
+
+    function saveCustomAssets() {
+      try {
+        localStorage.setItem("alphavault_custom_assets_v3", JSON.stringify(customAssets));
+      } catch (e) {}
+    }
+
+    function formatSignedPct(val) {
+      const n = Number(val);
+      if (isNaN(n)) return "0.00%";
+      const cls = n > 0 ? "text-emerald-400" : n < 0 ? "text-rose-400" : "text-slate-300";
+      const sign = n > 0 ? "+" : "";
+      return `<span class="mono font-semibold ${cls}">${sign}${n.toFixed(2)}%</span>`;
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const istStr = now.toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit", month: "short", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
+      });
+      const el = document.getElementById("live-clock-ist");
+      if (el) el.textContent = `Asia/Kolkata: ${istStr}`;
+    }
+
+    function renderScorecard() {
+      const search = document.getElementById("search-input").value.trim().toLowerCase();
+      const cat = document.getElementById("category-filter").value;
+      const vfilt = document.getElementById("verdict-filter").value;
+      const sort = document.getElementById("sort-select").value;
+
+      let filtered = ASSETS.filter(a => {
+        const matchCat = cat === "ALL" || a.type === cat;
+        const matchVerdict = vfilt === "ALL" || a.verdict === vfilt;
+        const matchSearch = !search || a.ticker.toLowerCase().includes(search) || a.name.toLowerCase().includes(search) || a.isin.toLowerCase().includes(search) || a.verdict.toLowerCase().includes(search);
+        return matchCat && matchVerdict && matchSearch;
+      });
+
+      if (sort === "dip1d") filtered.sort((a, b) => a.chg1d - b.chg1d);
+      else if (sort === "intraday") filtered.sort((a, b) => a.low1dPct - b.low1dPct);
+      else if (sort === "dip1m") filtered.sort((a, b) => a.ret1m - b.ret1m);
+      else if (sort === "dd52w") filtered.sort((a, b) => a.dd52w - b.dd52w);
+      else if (sort === "ret1y") filtered.sort((a, b) => b.ret1y - a.ret1y);
+      else filtered.sort((a, b) => a.id - b.id);
+
+      const tbody = document.getElementById("scorecard-tbody");
+      tbody.innerHTML = filtered.map(a => {
+        const badgeCls = a.verdictColor === "emerald"
+          ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+          : a.verdictColor === "rose"
+          ? "bg-rose-500/15 text-rose-300 border-rose-500/30"
+          : a.verdictColor === "amber"
+          ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+          : "bg-blue-500/15 text-blue-300 border-blue-500/30";
+
+        return `
+          <tr class="hover:bg-slate-900/80 transition">
+            <td class="py-2.5 px-2 mono text-slate-400">${a.id}</td>
+            <td class="py-2.5 px-2">
+              <a href="${a.url}" target="_blank" rel="noopener" class="font-bold text-white hover:text-blue-400 underline decoration-slate-600">${a.name} ↗</a>
+              <div class="text-[10px] text-slate-400 mono">${a.ticker} • ${a.isin} • ${a.retType}</div>
+            </td>
+            <td class="py-2.5 px-2 text-right mono">
+              <div class="font-bold text-white cursor-pointer hover:text-blue-400" data-edit-id="${a.id}" title="Click to test custom price">₹${a.price.toFixed(2)} ✎</div>
+              <div class="text-[10px] text-slate-400">${a.obsDate}</div>
+            </td>
+            <td class="py-2.5 px-2 text-right">
+              <div>${formatSignedPct(a.chg1d)}</div>
+              <div class="text-[10px] text-slate-400 mono">Low: ${a.low1dPct.toFixed(2)}%</div>
+            </td>
+            <td class="py-2.5 px-2 text-right">
+              <div>1M: ${formatSignedPct(a.ret1m)}</div>
+              <div>3M: ${formatSignedPct(a.ret3m)}</div>
+            </td>
+            <td class="py-2.5 px-2 text-right">
+              <div>6M: ${formatSignedPct(a.ret6m)}</div>
+              <div>12M: ${formatSignedPct(a.ret1y)}</div>
+            </td>
+            <td class="py-2.5 px-2 text-right mono text-[10px]">
+              <div>Sep: ${formatSignedPct(a.sep26)}</div>
+              <div>Jul–Sep: ${formatSignedPct(a.cal3m)}</div>
+              <div>MTD: ${formatSignedPct(a.octMtd)}</div>
+            </td>
+            <td class="py-2.5 px-2 text-right mono">
+              <div class="text-slate-300">₹${a.high52w.toFixed(2)}</div>
+              <div class="text-amber-400 font-semibold">${a.dd52w.toFixed(1)}%</div>
+            </td>
+            <td class="py-2.5 px-2 text-right mono text-[10px]">
+              <div class="text-rose-400 font-semibold">Max DD: ${a.maxDd12m.toFixed(1)}%</div>
+              <div class="text-slate-400">${a.worstDay}</div>
+            </td>
+            <td class="py-2.5 px-2 text-[10px] text-slate-300 max-w-[170px]">${a.trend}</td>
+            <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded border text-[10px] font-bold mono ${badgeCls}">${a.verdict}</span></td>
+            <td class="py-2.5 px-2 text-center">
+              <button data-asset-id="${a.id}" class="btn-inspect px-2 py-1 rounded bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/30 text-[10px] font-semibold transition">
+                Deep Thesis
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".btn-inspect").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-asset-id"));
+          showAssetDetail(id);
+        });
+      });
+
+      document.querySelectorAll("[data-edit-id]").forEach(cell => {
+        cell.addEventListener("click", () => {
+          const id = Number(cell.getAttribute("data-edit-id"));
+          const asset = ASSETS.find(x => x.id === id);
+          if (!asset || cell.querySelector("input")) return;
+          const inp = document.createElement("input");
+          inp.type = "number";
+          inp.step = "0.01";
+          inp.value = asset.price.toFixed(2);
+          inp.className = "w-20 px-1.5 py-0.5 rounded bg-slate-800 border border-blue-500 text-right text-xs text-white mono focus:outline-none";
+          cell.innerHTML = "";
+          cell.appendChild(inp);
+          inp.focus();
+          const commit = () => {
+            const p = parseFloat(inp.value);
+            if (!isNaN(p) && p > 0) {
+              asset.price = p;
+              asset.chg1d = ((p - asset.prevClose) / asset.prevClose) * 100;
+              asset.dd52w = ((p - asset.high52w) / asset.high52w) * 100;
+            }
+            renderScorecard();
+            showAssetDetail(id);
+          };
+          inp.addEventListener("blur", commit);
+          inp.addEventListener("keydown", ev => {
+            if (ev.key === "Enter") commit();
+            if (ev.key === "Escape") renderScorecard();
+          });
+        });
+      });
+    }
+
+    function showAssetDetail(id) {
+      const a = ASSETS.find(x => x.id === id) || ASSETS[0];
+      document.getElementById("detail-badge").textContent = `${a.type} • ${a.ticker} • ${a.isin}`;
+      document.getElementById("detail-title").textContent = `${a.name} — ₹${a.price.toFixed(2)} (${a.chg1d > 0 ? "+" : ""}${a.chg1d.toFixed(2)}% on ${a.obsDate} | Classification: ${a.verdict})`;
+      document.getElementById("detail-subtitle").textContent = `${a.pe} • ${a.mcap} • 52W High Dist: ${a.dd52w.toFixed(1)}% • 12M Max DD: ${a.maxDd12m.toFixed(1)}% • Worst Day: ${a.worstDay}`;
+      document.getElementById("detail-metrics").innerHTML = `
+        <span class="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Entry Condition: ${a.buyZone}</span>
+        <span class="px-2.5 py-1 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30">12M View: ${a.target12m}</span>
+        <span class="px-2.5 py-1 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">Invalidation: ${a.stopLoss}</span>
+      `;
+      document.getElementById("detail-body").innerHTML = `
+        <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+          <div class="font-bold text-blue-400 mb-1">1. Normalised Earnings, Valuation &amp; Cash Flow</div>
+          <p class="leading-relaxed">${a.fundamentals}</p>
+        </div>
+        <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+          <div class="font-bold text-amber-400 mb-1">2. Governance, Ownership &amp; Microstructure</div>
+          <p class="leading-relaxed">${a.institutional}</p>
+        </div>
+        <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+          <div class="font-bold text-emerald-400 mb-1">3. Trading vs. Investment Distinction</div>
+          <p class="leading-relaxed">${a.tradingVsInv}</p>
+        </div>
+        <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+          <div class="font-bold text-rose-400 mb-1">4. Counter-Thesis &amp; Invalidation Triggers</div>
+          <p class="leading-relaxed">${a.counterThesis}</p>
+        </div>
+      `;
+    }
+
+    function computeQuantAnalysis(item) {
+      const dd52 = ((item.price - item.high52) / item.high52) * 100;
+      let score = 50;
+      if (dd52 <= -15 && dd52 >= -48) score += 14;
+      else if (dd52 < -48) score += 6;
+      else if (dd52 <= -8) score += 8;
+
+      if (item.d1 <= -2.5 && item.d1 >= -5.5) score += 8;
+      if (item.y1 > 10 && item.m6 > 5 && item.m1 < 0) score += 12;
+      else if (item.y1 > 0) score += 6;
+
+      if (item.pe > 0 && item.pe <= 18) score += 12;
+      else if (item.pe > 18 && item.pe <= 32) score += 6;
+      else if (item.pe > 55) score -= 10;
+
+      if (item.roce >= 20) score += 10;
+      else if (item.roce >= 14) score += 5;
+
+      if (item.de <= 0.3) score += 6;
+      else if (item.de > 1.2) score -= 10;
+
+      if (item.inst === "PASS_INSTITUTIONAL") score += 10;
+      else if (item.inst === "PASS_MODERATE") score += 4;
+      else if (item.inst === "CAUTION_ILLIQUID") score -= 12;
+      else if (item.inst === "FAIL_GOVERNANCE") score -= 25;
+
+      score = Math.max(10, Math.min(96, Math.round(score)));
+      const buyLow = (item.price * 0.95).toFixed(2);
+      const buyHigh = (item.price * 1.00).toFixed(2);
+      const stop = (item.price * 0.90).toFixed(2);
+
+      let signal = "WATCH (Conditional Entry)";
+      let sigCls = "bg-blue-500/15 text-blue-300 border-blue-500/30";
+      if (item.inst === "FAIL_GOVERNANCE" || score < 48) {
+        signal = "AVOID (Fails Gatekeeper)";
+        sigCls = "bg-rose-500/15 text-rose-300 border-rose-500/30";
+      } else if (score >= 76 && item.inst === "PASS_INSTITUTIONAL") {
+        signal = "ACCUMULATE (Passes All 5 Gates)";
+        sigCls = "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
+      }
+      return { dd52, score, buyLow, buyHigh, stop, signal, sigCls };
+    }
+
+    function renderCustomWatchlist() {
+      const tbody = document.getElementById("custom-tbody");
+      tbody.innerHTML = customAssets.map((item, idx) => {
+        const q = computeQuantAnalysis(item);
+        return `
+          <tr class="hover:bg-slate-900/80 transition">
+            <td class="py-3 px-3">
+              <div class="font-bold text-white">${item.name}</div>
+              <div class="text-[10px] mono text-emerald-400">${item.type} • D/E or Pledge: ${item.de} • ${item.inst}</div>
+            </td>
+            <td class="py-3 px-2 text-right mono font-bold text-white">₹${Number(item.price).toFixed(2)}</td>
+            <td class="py-3 px-2 text-right">
+              <div>1D: ${formatSignedPct(item.d1)}</div>
+              <div class="text-[11px]">1M: ${formatSignedPct(item.m1)} | 3M: ${formatSignedPct(item.m3)}</div>
+            </td>
+            <td class="py-3 px-2 text-right">
+              <div>6M: ${formatSignedPct(item.m6)}</div>
+              <div class="text-[11px]">12M: ${formatSignedPct(item.y1)}</div>
+            </td>
+            <td class="py-3 px-2 text-right mono font-semibold text-amber-400">
+              ${q.dd52.toFixed(1)}%
+              <div class="text-[10px] text-slate-400">52W H: ₹${Number(item.high52).toFixed(2)}</div>
+            </td>
+            <td class="py-3 px-2 text-right mono text-slate-300">
+              <div>P/E or TER: ${item.pe}</div>
+              <div class="text-[11px] text-emerald-400">ROCE: ${item.roce}%</div>
+            </td>
+            <td class="py-3 px-2 text-center">
+              <div class="inline-flex items-center justify-center w-10 h-10 rounded-full font-extrabold mono text-xs ${q.score >= 76 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : q.score >= 55 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'}">
+                ${q.score}
+              </div>
+            </td>
+            <td class="py-3 px-2 mono text-[11px]">
+              <div class="text-emerald-300">Entry: ₹${q.buyLow}–₹${q.buyHigh}</div>
+              <div class="text-rose-400">Invalidate: &lt;₹${q.stop}</div>
+            </td>
+            <td class="py-3 px-2">
+              <span class="inline-block px-2 py-0.5 rounded border text-[10px] font-bold mono mb-1 ${q.sigCls}">${q.signal}</span>
+              <div class="text-[11px] text-slate-300">${item.notes || "Evaluated via 5-Gatekeeper institutional checklist."}</div>
+            </td>
+            <td class="py-3 px-2 text-center">
+              <button data-remove-idx="${idx}" class="btn-remove-custom px-2 py-1 rounded bg-rose-900/30 hover:bg-rose-700 text-rose-300 hover:text-white text-xs transition">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".btn-remove-custom").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const i = Number(btn.getAttribute("data-remove-idx"));
+          customAssets.splice(i, 1);
+          saveCustomAssets();
+          renderCustomWatchlist();
+        });
+      });
+    }
+
+    function renderGlobalAndIpo() {
+      const gtbody = document.getElementById("global-tbody");
+      gtbody.innerHTML = GLOBAL_INDICES.map(g => `
+        <tr class="hover:bg-slate-900/80 transition">
+          <td class="py-2.5 px-3 font-bold text-white">${g.name}</td>
+          <td class="py-2.5 px-2 text-slate-400 mono text-[11px]">${g.status}</td>
+          <td class="py-2.5 px-2 text-right mono font-bold text-white">${g.level}</td>
+          <td class="py-2.5 px-2 text-right mono text-amber-300">${g.chg}</td>
+          <td class="py-2.5 px-3 text-slate-300">${g.chain}</td>
+        </tr>
+      `).join("");
+
+      const itbody = document.getElementById("ipo-tbody");
+      itbody.innerHTML = IPOS.map(ip => `
+        <tr class="hover:bg-slate-900/80 transition">
+          <td class="py-2.5 px-3 font-bold text-white">${ip.name}</td>
+          <td class="py-2.5 px-2 text-slate-300 mono text-[11px]">${ip.window}</td>
+          <td class="py-2.5 px-2 text-right mono text-white">${ip.price}</td>
+          <td class="py-2.5 px-2 text-right mono text-emerald-300 font-semibold">${ip.metrics}</td>
+          <td class="py-2.5 px-2 mono text-blue-300 font-semibold">${ip.sub}</td>
+          <td class="py-2.5 px-3 text-slate-200">${ip.verdict}</td>
+        </tr>
+      `).join("");
+    }
+
+    let chartDailyDip = null;
+    let chartPeakDD = null;
+    let chartMultiHorizon = null;
+    let chartFiiDii = null;
+
+    function initCharts(only3to5 = false) {
+      const subset = only3to5 ? ASSETS.filter(a => a.low1dPct <= -2.90) : ASSETS;
+      const labels = subset.map(a => a.ticker);
+      const close1d = subset.map(a => a.chg1d);
+      const low1d = subset.map(a => a.low1dPct);
+
+      if (chartDailyDip) chartDailyDip.destroy();
+      const ctx1 = document.getElementById("chart-daily-dip").getContext("2d");
+      chartDailyDip = new Chart(ctx1, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Official Close % (2026-10-23)",
+              data: close1d,
+              backgroundColor: close1d.map(v => v >= 0 ? "rgba(16, 185, 129, 0.85)" : "rgba(244, 63, 94, 0.85)"),
+              borderRadius: 4
+            },
+            {
+              label: "Intraday Low % (2026-10-23)",
+              data: low1d,
+              backgroundColor: "rgba(245, 158, 11, 0.75)",
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(51,65,85,0.3)" } },
+            y: { ticks: { color: "#94a3b8", callback: v => v + "%" }, grid: { color: "rgba(51,65,85,0.3)" } }
+          }
+        }
+      });
+
+      const sortedByDD = [...subset].sort((a, b) => a.dd52w - b.dd52w);
+      if (chartPeakDD) chartPeakDD.destroy();
+      const ctx2 = document.getElementById("chart-peak-drawdown").getContext("2d");
+      chartPeakDD = new Chart(ctx2, {
+        type: "bar",
+        data: {
+          labels: sortedByDD.map(a => a.ticker),
+          datasets: [
+            {
+              label: "Distance Below Adj. 52W High (%)",
+              data: sortedByDD.map(a => a.dd52w),
+              backgroundColor: "rgba(59, 130, 246, 0.85)",
+              borderRadius: 4
+            },
+            {
+              label: "12M Window Max Drawdown (%)",
+              data: sortedByDD.map(a => a.maxDd12m),
+              backgroundColor: "rgba(239, 68, 68, 0.85)",
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(51,65,85,0.3)" } },
+            y: { ticks: { color: "#94a3b8", callback: v => v + "%" }, grid: { color: "rgba(51,65,85,0.3)" } }
+          }
+        }
+      });
+
+      if (chartMultiHorizon) chartMultiHorizon.destroy();
+      const ctx3 = document.getElementById("chart-multi-horizon").getContext("2d");
+      chartMultiHorizon = new Chart(ctx3, {
+        type: "bar",
+        data: {
+          labels: ASSETS.map(a => a.ticker),
+          datasets: [
+            { label: "Rolling 3M (%)", data: ASSETS.map(a => a.ret3m), backgroundColor: "rgba(56, 189, 248, 0.8)", borderRadius: 3 },
+            { label: "Rolling 6M (%)", data: ASSETS.map(a => a.ret6m), backgroundColor: "rgba(59, 130, 246, 0.85)", borderRadius: 3 },
+            { label: "Rolling 12M (%)", data: ASSETS.map(a => a.ret1y), backgroundColor: "rgba(16, 185, 129, 0.85)", borderRadius: 3 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(51,65,85,0.3)" } },
+            y: { ticks: { color: "#94a3b8", callback: v => v + "%" }, grid: { color: "rgba(51,65,85,0.3)" } }
+          }
+        }
+      });
+    }
+
+    function initMacroChart() {
+      if (chartFiiDii) chartFiiDii.destroy();
+      const ctx4 = document.getElementById("chart-fii-dii").getContext("2d");
+      chartFiiDii = new Chart(ctx4, {
+        type: "bar",
+        data: {
+          labels: ["Last 30 Days", "Last 5 Days", "Oct 15", "Oct 18", "Oct 21", "Oct 22", "Oct 23 (Prov)"],
+          datasets: [
+            {
+              label: "FII Net Cash (₹ Cr)",
+              data: [-88438.2, -1531.4, 1165.9, -1148.6, 1022.3, -3458.7, 887.65],
+              backgroundColor: "rgba(244, 63, 94, 0.85)",
+              borderRadius: 4
+            },
+            {
+              label: "DII Net Cash (₹ Cr)",
+              data: [98921.9, 7280.9, -3661.3, 3201.2, 1614.3, 2891.3, 3235.36],
+              backgroundColor: "rgba(16, 185, 129, 0.85)",
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(51,65,85,0.3)" } },
+            y: { ticks: { color: "#94a3b8", callback: v => "₹" + v + " Cr" }, grid: { color: "rgba(51,65,85,0.3)" } }
+          }
+        }
+      });
+    }
+
+    function startLiveSim() {
+      if (simInterval) clearInterval(simInterval);
+      simInterval = setInterval(() => {
+        if (!liveSimActive) return;
+        for (let k = 0; k < 3; k++) {
+          const idx = Math.floor(Math.random() * ASSETS.length);
+          if (ASSETS[idx].type === "MF") continue;
+          const a = ASSETS[idx];
+          const base = BASE_ASSETS[idx].price;
+          const delta = (Math.random() - 0.495) * 0.0025 * base;
+          a.price = Math.max(base * 0.99, Math.min(base * 1.01, a.price + delta));
+          a.chg1d = ((a.price - a.prevClose) / a.prevClose) * 100;
+          a.dd52w = ((a.price - a.high52w) / a.high52w) * 100;
+        }
+        renderScorecard();
+      }, 3500);
+    }
+
+
+    function getHeatColor(val, isDrawdown = false) {
+      if (isDrawdown) {
+        if (val <= -40) return "bg-rose-900/80 text-rose-200 font-bold";
+        if (val <= -25) return "bg-rose-800/60 text-rose-200";
+        if (val <= -15) return "bg-amber-800/50 text-amber-200";
+        return "bg-slate-800 text-slate-300";
+      }
+      if (val >= 40) return "bg-emerald-700/80 text-white font-bold";
+      if (val >= 15) return "bg-emerald-800/60 text-emerald-200";
+      if (val > 0) return "bg-emerald-950/70 text-emerald-300";
+      if (val <= -15) return "bg-rose-800/70 text-rose-200 font-bold";
+      if (val <= -3) return "bg-rose-950/80 text-rose-300";
+      return "bg-slate-900 text-slate-300";
+    }
+
+    function renderHeatmapGrid() {
+      const tbody = document.getElementById("heatmap-tbody");
+      if (!tbody) return;
+      tbody.innerHTML = ASSETS.map(a => `
+        <tr class="hover:bg-slate-900/60">
+          <td class="py-1.5 px-2 font-bold text-white">${a.ticker} <span class="text-[9px] text-slate-400">(${a.verdict})</span></td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.chg1d)}">${a.chg1d > 0 ? '+' : ''}${a.chg1d.toFixed(2)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.low1dPct)}">${a.low1dPct.toFixed(2)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.ret1m)}">${a.ret1m > 0 ? '+' : ''}${a.ret1m.toFixed(1)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.ret3m)}">${a.ret3m > 0 ? '+' : ''}${a.ret3m.toFixed(1)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.ret6m)}">${a.ret6m > 0 ? '+' : ''}${a.ret6m.toFixed(1)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.ret1y)}">${a.ret1y > 0 ? '+' : ''}${a.ret1y.toFixed(1)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.dd52w, true)}">${a.dd52w.toFixed(1)}%</td>
+          <td class="py-1.5 px-2 text-center ${getHeatColor(a.maxDd12m, true)}">${a.maxDd12m.toFixed(1)}%</td>
+          <td class="py-1.5 px-2 text-[10px] text-slate-300 font-sans">${a.trend.split('|')[0]}</td>
+        </tr>
+      `).join("");
+    }
+
+    function normCDF(x) {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = x < 0 ? -1 : 1;
+      const absX = Math.abs(x) / Math.sqrt(2.0);
+      const t = 1.0 / (1.0 + p * absX);
+      const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+      return 0.5 * (1.0 + sign * y);
+    }
+
+    function normPDF(x) {
+      return Math.exp(-0.5 * x * x) / Math.sqrt(2.0 * Math.PI);
+    }
+
+    function computeBSMGreeks() {
+      const S = parseFloat(document.getElementById("bsm-spot").value) || 22600;
+      const K = parseFloat(document.getElementById("bsm-strike").value) || 22600;
+      const iv = (parseFloat(document.getElementById("bsm-vol").value) || 15.81) / 100.0;
+      const days = Math.max(1, parseFloat(document.getElementById("bsm-days").value) || 4);
+      const T = days / 365.0;
+      const r = 0.0675;
+
+      const d1 = (Math.log(S / K) + (r + 0.5 * iv * iv) * T) / (iv * Math.sqrt(T));
+      const d2 = d1 - iv * Math.sqrt(T);
+
+      const callPrice = S * normCDF(d1) - K * Math.exp(-r * T) * normCDF(d2);
+      const putPrice = K * Math.exp(-r * T) * normCDF(-d2) - S * normCDF(-d1);
+      const straddle = callPrice + putPrice;
+
+      const callDelta = normCDF(d1);
+      const putDelta = callDelta - 1.0;
+      const gamma = normPDF(d1) / (S * iv * Math.sqrt(T));
+      const vega = (S * normPDF(d1) * Math.sqrt(T)) / 100.0;
+      const callTheta = (-(S * normPDF(d1) * iv) / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * normCDF(d2)) / 365.0;
+
+      const move1D = S * (iv / Math.sqrt(252));
+      const moveExp = S * iv * Math.sqrt(T);
+
+      const el = document.getElementById("bsm-results");
+      if (!el) return;
+      el.innerHTML = `
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+          <div class="text-[10px] text-slate-400">ATM Straddle (C+P)</div>
+          <div class="text-sm font-bold text-white">${straddle.toFixed(1)} pts</div>
+          <div class="text-[10px] text-slate-400">C: ${callPrice.toFixed(1)} | P: ${putPrice.toFixed(1)}</div>
+        </div>
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+          <div class="text-[10px] text-slate-400">Call / Put Delta (Δ)</div>
+          <div class="text-sm font-bold text-emerald-400">+${callDelta.toFixed(2)} / ${putDelta.toFixed(2)}</div>
+          <div class="text-[10px] text-slate-400">Directional Sensitivity</div>
+        </div>
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+          <div class="text-[10px] text-slate-400">Gamma (Γ) per Pt</div>
+          <div class="text-sm font-bold text-amber-400">${gamma.toFixed(4)}</div>
+          <div class="text-[10px] text-slate-400">Delta Acceleration</div>
+        </div>
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+          <div class="text-[10px] text-slate-400">Daily Theta (Θ) / Vega (ν)</div>
+          <div class="text-sm font-bold text-rose-400">${callTheta.toFixed(1)} / +${vega.toFixed(1)}</div>
+          <div class="text-[10px] text-slate-400">Time Decay vs IV Shift</div>
+        </div>
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+          <div class="text-[10px] text-slate-400">1-Day 1SD Range</div>
+          <div class="text-sm font-bold text-blue-300">±${move1D.toFixed(0)} pts</div>
+          <div class="text-[10px] text-slate-400">${(S - move1D).toFixed(0)} – ${(S + move1D).toFixed(0)}</div>
+        </div>
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+          <div class="text-[10px] text-slate-400">${days}D Expiry 1SD Range</div>
+          <div class="text-sm font-bold text-purple-300">±${moveExp.toFixed(0)} pts</div>
+          <div class="text-[10px] text-slate-400">${(S - moveExp).toFixed(0)} – ${(S + moveExp).toFixed(0)}</div>
+        </div>
+      `;
+    }
+
+    function exportFullCsv() {
+      const headers = [
+        "ID", "Ticker", "ISIN", "Name", "Category", "Return_Type", "Obs_Date",
+        "Close_or_NAV_INR", "1D_Pct", "Intraday_Low_INR", "Intraday_Low_Pct",
+        "Rolling_1M_Pct", "Rolling_3M_Pct", "Rolling_6M_Pct", "Rolling_12M_Pct",
+        "Sep26_Cal_Month_Pct", "Jul_Sep26_3M_Cal_Pct", "Oct26_MTD_Pct",
+        "Adj_52W_High_INR", "Dist_From_52W_High_Pct", "Window_12M_Max_DD_Pct",
+        "Worst_Day_Date", "Valuation_or_TER", "Classification", "Entry_Condition", "Invalidation_Stop"
+      ];
+      const rows = [headers];
+      ASSETS.forEach(a => {
+        rows.push([
+          a.id, `"${a.ticker}"`, a.isin, `"${a.name}"`, a.type, `"${a.retType}"`, a.obsDate,
+          a.price.toFixed(2), a.chg1d.toFixed(2), a.low1dPrice.toFixed(2), a.low1dPct.toFixed(2),
+          a.ret1m.toFixed(2), a.ret3m.toFixed(2), a.ret6m.toFixed(2), a.ret1y.toFixed(2),
+          a.sep26.toFixed(2), a.cal3m.toFixed(2), a.octMtd.toFixed(2),
+          a.high52w.toFixed(2), a.dd52w.toFixed(2), a.maxDd12m.toFixed(2),
+          `"${a.worstDay}"`, `"${a.pe}"`, `"${a.verdict}"`, `"${a.buyZone}"`, `"${a.stopLoss}"`
+        ]);
+      });
+      const csv = rows.map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "alphavault_19_watchlist_full_audit_oct2026.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadCustomAssets();
+      renderScorecard();
+      showAssetDetail(14);
+      renderCustomWatchlist();
+      renderGlobalAndIpo();
+      renderHeatmapGrid();
+      computeBSMGreeks();
+      document.getElementById("btn-calc-bsm").addEventListener("click", computeBSMGreeks);
+      updateClock();
+      setInterval(updateClock, 1000);
+      startLiveSim();
+
+      const btnMorning = document.getElementById("btn-mode-morning");
+      const btnEvening = document.getElementById("btn-mode-evening");
+      const modeBadge = document.getElementById("mode-badge");
+      const modeHeadline = document.getElementById("mode-headline");
+
+      const modeSummary = document.getElementById("mode-summary-content");
+      btnMorning.addEventListener("click", () => {
+        btnMorning.classList.add("mode-active");
+        btnMorning.classList.remove("text-slate-300");
+        btnEvening.classList.remove("mode-active");
+        btnEvening.classList.add("text-slate-300");
+        modeBadge.textContent = "MORNING INVESTMENT RADAR MODE (8:30 AM IST SPEC)";
+        modeHeadline.textContent = "Decision-First Pre-Market Risk Assessment & Daytime Conditional Execution Priorities";
+        modeSummary.innerHTML = `
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-amber-400 mb-1">1. Pre-Market Macro &amp; Overnight Cues (8:30 AM Spec)</div>
+            <p class="leading-relaxed">Brent crude at $115.76/bbl (+8.6% Wk) and USD/INR at 94.9430 create opening headwinds for rate-sensitive financials, while US Nasdaq (-0.21% at 25,955.34) and S&amp;P 500 (-0.52% at 7,623.68) stabilized after Thursday's tech selloff. Focus daytime orders on domestic cash-flow anchors backed by +₹4,123 Cr of combined FII+DII cash buying.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-emerald-400 mb-1">2. Daytime Value-Harvesting Priorities (ACCUMULATE)</div>
+            <p class="leading-relaxed">Stage conditional limit bids at structural support: <strong class="text-white">HINDZINC</strong> (₹485–₹500, 10.07x P/E), <strong class="text-white">COALINDIA</strong> (₹388–₹398, 7.85x P/E, 6.67% yield), <strong class="text-white">TATACAP</strong> (₹296–₹307), <strong class="text-white">BHEL</strong> (₹375–₹386), <strong class="text-white">MOTHERSON</strong> (₹146–₹152), and bullion ETFs (<strong class="text-white">TATAGOLD / TATSILV</strong>).</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-rose-400 mb-1">3. Daytime Microstructure &amp; iNAV Guardrails</div>
+            <p class="leading-relaxed">Never place market orders on international ETFs at 9:15 AM IST. <strong class="text-white">Strictly AVOID MONQ50</strong> (+89.5% premium over ₹116.90 iNAV); bid <strong class="text-white">MON100</strong> only at ≤₹274; note <strong class="text-white">Invesco Global FoFs are closed to fresh subscriptions</strong> under RBI's $7B cap.</p>
+          </div>
+        `;
+      });
+
+      btnEvening.addEventListener("click", () => {
+        btnEvening.classList.add("mode-active");
+        btnEvening.classList.remove("text-slate-300");
+        btnMorning.classList.remove("mode-active");
+        btnMorning.classList.add("text-slate-300");
+        modeBadge.textContent = "EVENING MARKET REVIEW MODE (9:30 PM IST SPEC)";
+        modeHeadline.textContent = "Post-India-Market Settlement Audit, Prior-Call Verification & Next-Session Bull/Base/Bear Scenarios";
+        modeSummary.innerHTML = `
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-blue-400 mb-1">1. Post-Market Settlement &amp; Institutional Flow Audit (9:30 PM Spec)</div>
+            <p class="leading-relaxed">Nifty 50 closed at 22,600.00 (-0.39%) after rejecting at 22,787 (23 pts shy of our 22,810 gamma trigger). Beneath Midcap (-2.21%) and Smallcap (-2.94%) F&amp;O liquidation, <strong class="text-white">both FIIs (+₹887.65 Cr) and DIIs (+₹3,235.36 Cr) were net cash buyers</strong>, while Jio Platforms IPO closed at 22.19x (70.55x QIB).</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-emerald-400 mb-1">2. Next-Session Bull / Base / Bear Pivot Triggers</div>
+            <p class="leading-relaxed">Calculated Floor Pivots: <strong class="text-white">P = 22,656 | R1 = 22,731 | R2 = 22,863 | S1 = 22,524 | S2 = 22,449</strong>. Defending 22,500–22,524 (S1 + Put wall) keeps Nifty in a 22,524–22,731 base; reclaiming 22,731 triggers short covering across FIIs' -2.80L short index futures.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="font-bold text-amber-400 mb-1">3. Trading vs. Investment Separation</div>
+            <p class="leading-relaxed">Short-term traders should trail stops on <strong class="text-white">MOREPENLAB</strong> (+5.00% UC at ₹123.55 after sweeping ₹113.00) at ₹114 and wait for <strong class="text-white">BHEL</strong> to reclaim ₹392; long-term investors should accumulate <strong class="text-white">HINDZINC, COALINDIA, TATACAP &amp; TATSILV</strong> on 3%–5% pullbacks.</p>
+          </div>
+        `;
+      });
+
+      document.getElementById("btn-toggle-live").addEventListener("click", () => {
+        liveSimActive = !liveSimActive;
+        const ind = document.getElementById("sim-indicator");
+        const lbl = document.getElementById("sim-label");
+        if (liveSimActive) {
+          ind.className = "w-2 h-2 rounded-full bg-emerald-400 live-dot";
+          lbl.textContent = "Stress Sim: ON (Equities/ETFs)";
+        } else {
+          ASSETS = JSON.parse(JSON.stringify(BASE_ASSETS));
+          renderScorecard();
+          ind.className = "w-2 h-2 rounded-full bg-slate-500";
+          lbl.textContent = "Stress Sim: OFF (Verified Close)";
+        }
+      });
+
+      document.getElementById("btn-export-full-csv").addEventListener("click", exportFullCsv);
+
+      document.getElementById("search-input").addEventListener("input", renderScorecard);
+      document.getElementById("category-filter").addEventListener("change", renderScorecard);
+      document.getElementById("verdict-filter").addEventListener("change", renderScorecard);
+      document.getElementById("sort-select").addEventListener("change", renderScorecard);
+
+      document.querySelectorAll(".nav-tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-tab");
+          document.querySelectorAll(".nav-tab").forEach(b => {
+            b.classList.remove("tab-active");
+            b.classList.add("bg-slate-900", "text-slate-300");
+          });
+          btn.classList.add("tab-active");
+          btn.classList.remove("bg-slate-900", "text-slate-300");
+
+          document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+          document.getElementById("panel-" + target).classList.remove("hidden");
+
+          if (target === "drawdowns") initCharts(false);
+          if (target === "macro") initMacroChart();
+        });
+      });
+
+      document.getElementById("filter-dip-all").addEventListener("click", () => initCharts(false));
+      document.getElementById("filter-dip-3to5").addEventListener("click", () => initCharts(true));
+
+      document.getElementById("custom-asset-form").addEventListener("submit", e => {
+        e.preventDefault();
+        const newItem = {
+          name: document.getElementById("inp-name").value.trim(),
+          type: document.getElementById("inp-type").value,
+          price: parseFloat(document.getElementById("inp-price").value) || 100,
+          high52: parseFloat(document.getElementById("inp-high52").value) || 130,
+          low52: parseFloat(document.getElementById("inp-low52").value) || 80,
+          d1: parseFloat(document.getElementById("inp-1d").value) || 0,
+          m1: parseFloat(document.getElementById("inp-1m").value) || 0,
+          m3: parseFloat(document.getElementById("inp-3m").value) || 0,
+          m6: parseFloat(document.getElementById("inp-6m").value) || 0,
+          y1: parseFloat(document.getElementById("inp-1y").value) || 0,
+          pe: parseFloat(document.getElementById("inp-pe").value) || 20,
+          roce: parseFloat(document.getElementById("inp-roce").value) || 15,
+          de: parseFloat(document.getElementById("inp-de").value) || 0.2,
+          inst: document.getElementById("inp-inst").value,
+          notes: document.getElementById("inp-notes").value.trim()
+        };
+        customAssets.unshift(newItem);
+        saveCustomAssets();
+        renderCustomWatchlist();
+        document.getElementById("inp-name").value = "";
+        document.getElementById("inp-notes").value = "";
+      });
+
+      document.getElementById("btn-reset-custom").addEventListener("click", () => {
+        customAssets = JSON.parse(JSON.stringify(DEFAULT_CUSTOM_ASSETS));
+        saveCustomAssets();
+        renderCustomWatchlist();
+      });
+
+      document.getElementById("btn-export-csv").addEventListener("click", () => {
+        const rows = [["Candidate_Name_ISIN", "Category", "Price", "52W_High", "52W_Low", "1D_Pct", "1M_Pct", "3M_Pct", "6M_Pct", "12M_Pct", "PE_or_TER", "ROCE_Pct", "DE_or_Pledge", "Governance_Status", "Gatekeeper_Score", "Classification"]];
+        customAssets.forEach(a => {
+          const q = computeQuantAnalysis(a);
+          rows.push([`"${a.name}"`, `"${a.type}"`, a.price, a.high52, a.low52, a.d1, a.m1, a.m3, a.m6, a.y1, a.pe, a.roce, a.de, a.inst, q.score, `"${q.signal}"`]);
+        });
+        const csv = rows.map(r => r.join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "alphavault_gatekeeper_register_oct2026.csv";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    });
+  </script>
+</body>
+</html>
